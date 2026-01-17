@@ -1,0 +1,16 @@
+services:
+  database:
+    container_name: andromeda-database
+    image: postgres:18.0-alpine
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=andromeda-database
+      - POSTGRES_PASSWORD=docker
+      - POSTGRES_DB=andromeda
+    volumes:
+      - database:/var/lib/postgresql/data
+  
+volumes:
+  database:
+    driver: local 
