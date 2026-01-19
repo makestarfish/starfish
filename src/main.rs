@@ -1,11 +1,11 @@
-use andromeda::{queries::Query, state::SharedState};
-use async_graphql::{EmptyMutation, EmptySubscription, Schema};
+use async_graphql::{EmptySubscription, Schema};
 use async_graphql_axum::{GraphQLRequest, GraphQLResponse};
 use axum::{Router, extract::State, routing::post};
+use starfish::{mutations::Mutation, queries::Query, state::SharedState};
 use tokio::net::TcpListener;
 
 async fn graphql(
-  State(schema): State<Schema<Query, EmptyMutation, EmptySubscription>>,
+  State(schema): State<Schema<Query, Mutation, EmptySubscription>>,
   request: GraphQLRequest,
 ) -> GraphQLResponse {
   let request = request.into_inner();
@@ -21,7 +21,9 @@ async fn main() {
     .await
     .unwrap();
 
-  let schema = Schema::build(Query, EmptyMutation, EmptySubscription).finish();
+  let schema = Schema::build(Query, Mutation, EmptySubscription)
+    .data(state.clone())
+    .finish();
 
   let router = Router::new().route("/", post(graphql)).with_state(schema);
 

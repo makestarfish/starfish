@@ -1,1 +1,5 @@
-/target
+# build
+target
+
+# environment variable files
+.env

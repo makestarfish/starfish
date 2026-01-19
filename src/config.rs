@@ -10,6 +10,7 @@ pub struct Config {
   pub port: u16,
   pub database_url: String,
   pub resend_api_key: String,
+  pub jwt_secret: String,
 }
 
 impl Config {
