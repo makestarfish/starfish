@@ -26,9 +26,9 @@ impl SessionClaims {
 
   pub fn from_token(
     token: &str,
-    secret: &str,
+    signing_secret: &str,
   ) -> jsonwebtoken::errors::Result<Self> {
-    decode_claims(token, secret)
+    decode_claims(token, signing_secret)
   }
 
   pub fn encode(&self, secret: &str) -> String {
@@ -39,18 +39,25 @@ impl SessionClaims {
 #[derive(Serialize, Deserialize, Clone)]
 pub struct RefreshTokenClaims {
   #[serde(rename = "jti")]
-  pub refresh_token_id: String,
+  pub refresh_token_id: Uuid,
 
   #[serde(rename = "exp")]
   pub expires_at: i64,
 }
 
 impl RefreshTokenClaims {
-  pub fn new(refresh_token_id: impl ToString) -> Self {
+  pub fn new(refresh_token_id: Uuid) -> Self {
     Self {
-      refresh_token_id: refresh_token_id.to_string(),
+      refresh_token_id,
       expires_at: (Utc::now() + Duration::days(30)).timestamp(),
     }
+  }
+
+  pub fn from_token(
+    token: &str,
+    signing_secret: &str,
+  ) -> jsonwebtoken::errors::Result<Self> {
+    decode_claims(token, signing_secret)
   }
 
   pub fn encode(&self, secret: &str) -> String {

@@ -39,11 +39,14 @@ failure_reasons! {
   /// 500 INTERNAL_SERVER_ERROR
   (500, INTERNAL_SERVER_ERROR, "Distortion in spacetime detected: internal server error"),
 
-  /// 404 NOT_FOUND
-  (404, NOT_FOUND, "Resource not found"),
-
   /// 401 UNAUTHORIZED
   (401, UNAUTHORIZED, "Requires authentication"),
+
+  /// 403 FORBIDDEN
+  (403, FORBIDDEN, "Permission denied"),
+
+  /// 404 NOT_FOUND
+  (404, NOT_FOUND, "Resource not found"),
 }
 
 pub struct Failure {

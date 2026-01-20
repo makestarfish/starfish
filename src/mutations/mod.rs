@@ -7,6 +7,7 @@ use async_graphql::{Context, Object};
 use uuid::Uuid;
 
 pub mod login_with_email;
+pub mod refresh_session;
 pub mod request_auth_email;
 
 pub struct Mutation;
@@ -39,6 +40,19 @@ impl Mutation {
       one_time_token_id,
       email,
       code,
+    )
+    .await
+  }
+
+  #[graphql(name = "refresh_session")]
+  async fn refresh_session(
+    &self,
+    context: &Context<'_>,
+    #[graphql(name = "refresh_token")] refresh_token: String,
+  ) -> Result<Tokens, Failure> {
+    refresh_session::resolve(
+      context.data_unchecked::<SharedState>(),
+      refresh_token,
     )
     .await
   }
