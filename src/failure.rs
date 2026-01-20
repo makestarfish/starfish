@@ -41,6 +41,9 @@ failure_reasons! {
 
   /// 404 NOT_FOUND
   (404, NOT_FOUND, "Resource not found"),
+
+  /// 401 UNAUTHORIZED
+  (401, UNAUTHORIZED, "Requires authentication"),
 }
 
 pub struct Failure {
@@ -79,6 +82,10 @@ macro_rules! failure {
     )
   };
 
+  ($reason:expr) => {
+    $crate::failure::Failure::new($reason)
+  };
+
   ($reason:expr, $message:expr) => {
     $crate::failure::Failure::with_message($reason, $message)
   };
@@ -88,6 +95,10 @@ macro_rules! failure {
 macro_rules! bail {
   () => {
     return Err(failure!())
+  };
+
+  ($reason:expr) => {
+    return Err(failure!($reason))
   };
 
   ($reason:expr, $message:expr) => {

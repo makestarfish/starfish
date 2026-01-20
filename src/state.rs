@@ -1,8 +1,9 @@
 use crate::config::Config;
+use axum::extract::FromRef;
 use resend_rs::Resend;
 use sqlx::{PgPool, postgres::PgPoolOptions};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, FromRef)]
 pub struct SharedState {
   pub config: Config,
   pub db: PgPool,

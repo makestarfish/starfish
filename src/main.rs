@@ -1,14 +1,25 @@
 use async_graphql::{EmptySubscription, Schema};
 use async_graphql_axum::{GraphQLRequest, GraphQLResponse};
-use axum::{Router, extract::State, routing::post};
-use starfish::{mutations::Mutation, queries::Query, state::SharedState};
+use axum::{Router, extract::State, http::HeaderMap, routing::post};
+use starfish::{
+  context::RequestContext, mutations::Mutation, queries::Query,
+  state::SharedState,
+};
 use tokio::net::TcpListener;
 
 async fn graphql(
   State(schema): State<Schema<Query, Mutation, EmptySubscription>>,
+  headers: HeaderMap,
   request: GraphQLRequest,
 ) -> GraphQLResponse {
-  let request = request.into_inner();
+  let mut request = request.into_inner();
+
+  let state = schema.data::<SharedState>().unwrap();
+
+  let request_context =
+    RequestContext::from_headers(headers, &state.config.jwt_secret);
+
+  request = request.data(request_context);
 
   schema.execute(request).await.into()
 }

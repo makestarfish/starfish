@@ -3,24 +3,32 @@ use jsonwebtoken::{
   Algorithm, DecodingKey, EncodingKey, Header, Validation, decode, encode,
 };
 use serde::{Deserialize, Serialize, de::DeserializeOwned};
+use uuid::Uuid;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct SessionClaims {
   #[serde(rename = "sub")]
-  pub user_id: String,
-  pub session_id: String,
+  pub user_id: Uuid,
+  pub session_id: Uuid,
 
   #[serde(rename = "exp")]
   pub expires_at: i64,
 }
 
 impl SessionClaims {
-  pub fn new(user_id: impl ToString, session_id: impl ToString) -> Self {
+  pub fn new(user_id: Uuid, session_id: Uuid) -> Self {
     Self {
-      user_id: user_id.to_string(),
-      session_id: session_id.to_string(),
+      user_id,
+      session_id,
       expires_at: (Utc::now() + Duration::hours(1)).timestamp(),
     }
+  }
+
+  pub fn from_token(
+    token: &str,
+    secret: &str,
+  ) -> jsonwebtoken::errors::Result<Self> {
+    decode_claims(token, secret)
   }
 
   pub fn encode(&self, secret: &str) -> String {
