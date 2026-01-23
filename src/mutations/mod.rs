@@ -8,19 +8,19 @@ use uuid::Uuid;
 
 pub mod login_with_email;
 pub mod refresh_session;
-pub mod request_auth_email;
+pub mod send_login_code;
 
 pub struct Mutation;
 
 #[Object]
 impl Mutation {
-  #[graphql(name = "request_auth_email")]
-  async fn request_auth_email(
+  #[graphql(name = "send_login_code")]
+  async fn send_login_code(
     &self,
     context: &Context<'_>,
     #[graphql(validator(email))] email: String,
   ) -> Result<OneTimeToken, Failure> {
-    request_auth_email::resolve(
+    send_login_code::resolve(
       context.data_unchecked::<SharedState>().clone(),
       email,
     )
