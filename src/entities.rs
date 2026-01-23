@@ -32,3 +32,21 @@ pub struct User {
   pub created_at: DateTime<Utc>,
   pub modified_at: Option<DateTime<Utc>>,
 }
+
+#[derive(NewType)]
+pub struct SessionId(Uuid);
+
+#[derive(SimpleObject)]
+#[graphql(rename_fields = "snake_case")]
+pub struct Session {
+  pub id: SessionId,
+  pub user_id: UserId,
+  pub last_seen_at: DateTime<Utc>,
+  pub is_current_session: bool,
+}
+
+#[derive(SimpleObject)]
+#[graphql(rename_fields = "snake_case")]
+pub struct RevokedSession {
+  pub id: SessionId,
+}

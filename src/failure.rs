@@ -89,8 +89,8 @@ macro_rules! failure {
     $crate::failure::Failure::new($reason)
   };
 
-  ($reason:expr, $message:expr) => {
-    $crate::failure::Failure::with_message($reason, $message)
+  ($reason:expr, $($arg:tt)*) => {
+    $crate::failure::Failure::with_message($reason, format_args!($($arg)*))
   };
 }
 
@@ -104,7 +104,7 @@ macro_rules! bail {
     return Err(failure!($reason))
   };
 
-  ($reason:expr, $message:expr) => {
-    return Err(failure!($reason, $message))
+  ($reason:expr, $($arg:tt)*) => {
+    return Err(failure!($reason, $($arg)*))
   };
 }

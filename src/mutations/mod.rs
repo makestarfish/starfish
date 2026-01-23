@@ -1,5 +1,6 @@
 use crate::{
-  entities::{OneTimeToken, Tokens},
+  context::RequestContext,
+  entities::{OneTimeToken, RevokedSession, Tokens},
   failure::Failure,
   state::SharedState,
 };
@@ -8,6 +9,9 @@ use uuid::Uuid;
 
 pub mod login_with_email;
 pub mod refresh_session;
+pub mod revoke_current_session;
+pub mod revoke_other_sessions;
+pub mod revoke_session;
 pub mod send_login_code;
 
 pub struct Mutation;
@@ -53,6 +57,44 @@ impl Mutation {
     refresh_session::resolve(
       context.data_unchecked::<SharedState>(),
       refresh_token,
+    )
+    .await
+  }
+
+  #[graphql(name = "revoke_current_session")]
+  async fn revoke_current_session(
+    &self,
+    context: &Context<'_>,
+  ) -> Result<RevokedSession, Failure> {
+    revoke_current_session::resolve(
+      context.data_unchecked::<SharedState>(),
+      context.data_unchecked::<RequestContext>(),
+    )
+    .await
+  }
+
+  #[graphql(name = "revoke_session")]
+  async fn revoke_session(
+    &self,
+    context: &Context<'_>,
+    id: Uuid,
+  ) -> Result<RevokedSession, Failure> {
+    revoke_session::resolve(
+      context.data_unchecked::<SharedState>(),
+      context.data_unchecked::<RequestContext>(),
+      id,
+    )
+    .await
+  }
+
+  #[graphql(name = "revoke_other_sessions")]
+  async fn revoke_other_sessions(
+    &self,
+    context: &Context<'_>,
+  ) -> Result<bool, Failure> {
+    revoke_other_sessions::resolve(
+      context.data_unchecked::<SharedState>(),
+      context.data_unchecked::<RequestContext>(),
     )
     .await
   }
