@@ -4,7 +4,7 @@ use crate::{
   failure::Failure,
   state::SharedState,
 };
-use async_graphql::{Context, Object};
+use async_graphql::{Context, MaybeUndefined, Object};
 use uuid::Uuid;
 
 pub mod create_store;
@@ -14,6 +14,7 @@ pub mod revoke_current_session;
 pub mod revoke_other_sessions;
 pub mod revoke_session;
 pub mod send_login_code;
+pub mod update_store;
 
 pub struct Mutation;
 
@@ -111,6 +112,28 @@ impl Mutation {
     #[graphql(name = "avatar_url")] avatar_url: Option<String>,
   ) -> Result<Store, Failure> {
     create_store::resolve(
+      context.data_unchecked::<SharedState>(),
+      context.data_unchecked::<RequestContext>(),
+      slug,
+      name,
+      email,
+      website,
+      avatar_url,
+    )
+    .await
+  }
+
+  #[graphql(name = "update_store")]
+  async fn update_store(
+    &self,
+    context: &Context<'_>,
+    slug: String,
+    name: Option<String>,
+    email: MaybeUndefined<String>,
+    website: MaybeUndefined<String>,
+    #[graphql(name = "avatar_url")] avatar_url: MaybeUndefined<String>,
+  ) -> Result<Store, Failure> {
+    update_store::resolve(
       context.data_unchecked::<SharedState>(),
       context.data_unchecked::<RequestContext>(),
       slug,

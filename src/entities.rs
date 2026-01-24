@@ -1,5 +1,6 @@
 use async_graphql::{NewType, SimpleObject};
 use chrono::{DateTime, Utc};
+use sqlx::FromRow;
 use uuid::Uuid;
 
 #[derive(SimpleObject)]
@@ -51,12 +52,13 @@ pub struct RevokedSession {
   pub id: SessionId,
 }
 
-#[derive(NewType)]
+#[derive(NewType, FromRow, Debug)]
 pub struct StoreId(pub Uuid);
 
-#[derive(SimpleObject)]
+#[derive(SimpleObject, FromRow, Debug)]
 #[graphql(rename_fields = "snake_case")]
 pub struct Store {
+  #[sqlx(flatten)]
   pub id: StoreId,
   pub slug: String,
   pub name: String,

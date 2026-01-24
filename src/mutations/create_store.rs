@@ -33,7 +33,7 @@ pub async fn resolve(
   .map_err(|_| failure!())?;
 
   if store_with_same_slug.exists.unwrap_or_default() {
-    bail!(FailureReason::CONFLICT, "The slug '{slug}' is in use");
+    bail!(FailureReason::CONFLICT, "The slug '{slug}' is already in use");
   }
 
   let mut tx = state.db.begin().await.map_err(|_| failure!())?;
@@ -68,12 +68,14 @@ pub async fn resolve(
       insert into store_members (store_id, user_id)
       values ($1, $2)
     "#,
-    &user_id,
-    &store.id.0
+    &store.id.0,
+    &user_id
   )
   .execute(&mut *tx)
   .await
   .map_err(|_| failure!())?;
+
+  tx.commit().await.map_err(|_| failure!())?;
 
   Ok(store)
 }
