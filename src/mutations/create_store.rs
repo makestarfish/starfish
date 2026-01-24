@@ -33,7 +33,10 @@ pub async fn resolve(
   .map_err(|_| failure!())?;
 
   if store_with_same_slug.exists.unwrap_or_default() {
-    bail!(FailureReason::CONFLICT, "The slug '{slug}' is already in use");
+    bail!(
+      FailureReason::CONFLICT,
+      "The slug '{slug}' is already in use"
+    );
   }
 
   let mut tx = state.db.begin().await.map_err(|_| failure!())?;
