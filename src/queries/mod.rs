@@ -1,6 +1,6 @@
 use crate::{
   context::RequestContext,
-  entities::{Session, User},
+  entities::{Session, Store, StoreConnection, User},
   failure::Failure,
   state::SharedState,
 };
@@ -9,6 +9,8 @@ use uuid::Uuid;
 
 pub mod session;
 pub mod sessions;
+pub mod store;
+pub mod stores;
 pub mod viewer;
 
 pub struct Query;
@@ -45,5 +47,32 @@ impl Query {
       id,
     )
     .await
+  }
+
+  pub async fn stores(
+    &self,
+    context: &Context<'_>,
+    first: Option<i64>,
+    after: Option<Uuid>,
+    last: Option<i64>,
+    before: Option<Uuid>,
+  ) -> Result<StoreConnection, Failure> {
+    stores::resolve(
+      context.data_unchecked::<SharedState>(),
+      context.data_unchecked::<RequestContext>(),
+      first,
+      after,
+      last,
+      before,
+    )
+    .await
+  }
+
+  async fn store(
+    &self,
+    context: &Context<'_>,
+    slug: String,
+  ) -> Result<Option<Store>, Failure> {
+    store::resolve(context.data_unchecked::<SharedState>(), slug).await
   }
 }

@@ -37,7 +37,7 @@ pub async fn resolve(
     );
   }
 
-  let session = sqlx::query_as!(
+  let revoked_session = sqlx::query_as!(
     RevokedSession,
     r#"
       update sessions
@@ -51,5 +51,5 @@ pub async fn resolve(
   .await
   .map_err(|_| failure!())?;
 
-  Ok(session)
+  Ok(revoked_session)
 }

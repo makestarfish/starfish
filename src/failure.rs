@@ -47,6 +47,9 @@ failure_reasons! {
 
   /// 404 NOT_FOUND
   (404, NOT_FOUND, "Resource not found"),
+
+  /// 409 CONFLICT
+  (409, CONFLICT, "The request conflicts with an existing resource"),
 }
 
 pub struct Failure {

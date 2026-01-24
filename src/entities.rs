@@ -50,3 +50,25 @@ pub struct Session {
 pub struct RevokedSession {
   pub id: SessionId,
 }
+
+#[derive(NewType)]
+pub struct StoreId(pub Uuid);
+
+#[derive(SimpleObject)]
+#[graphql(rename_fields = "snake_case")]
+pub struct Store {
+  pub id: StoreId,
+  pub slug: String,
+  pub name: String,
+  pub email: Option<String>,
+  pub website: Option<String>,
+  pub avatar_url: Option<String>,
+  pub created_at: DateTime<Utc>,
+  pub modified_at: Option<DateTime<Utc>>,
+}
+
+#[derive(SimpleObject)]
+#[graphql(rename_fields = "snake_case")]
+pub struct StoreConnection {
+  pub nodes: Vec<Store>,
+}

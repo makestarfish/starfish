@@ -1,12 +1,13 @@
 use crate::{
   context::RequestContext,
-  entities::{OneTimeToken, RevokedSession, Tokens},
+  entities::{OneTimeToken, RevokedSession, Store, Tokens},
   failure::Failure,
   state::SharedState,
 };
 use async_graphql::{Context, Object};
 use uuid::Uuid;
 
+pub mod create_store;
 pub mod login_with_email;
 pub mod refresh_session;
 pub mod revoke_current_session;
@@ -95,6 +96,28 @@ impl Mutation {
     revoke_other_sessions::resolve(
       context.data_unchecked::<SharedState>(),
       context.data_unchecked::<RequestContext>(),
+    )
+    .await
+  }
+
+  #[graphql(name = "create_store")]
+  async fn create_store(
+    &self,
+    context: &Context<'_>,
+    slug: String,
+    name: String,
+    email: Option<String>,
+    website: Option<String>,
+    #[graphql(name = "avatar_url")] avatar_url: Option<String>,
+  ) -> Result<Store, Failure> {
+    create_store::resolve(
+      context.data_unchecked::<SharedState>(),
+      context.data_unchecked::<RequestContext>(),
+      slug,
+      name,
+      email,
+      website,
+      avatar_url,
     )
     .await
   }
