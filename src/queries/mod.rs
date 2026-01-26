@@ -10,6 +10,7 @@ use uuid::Uuid;
 pub mod session;
 pub mod sessions;
 pub mod store;
+pub mod store_members;
 pub mod stores;
 pub mod viewer;
 

@@ -1,7 +1,12 @@
-use async_graphql::{NewType, SimpleObject};
+use async_graphql::{ComplexObject, Context, NewType, SimpleObject};
 use chrono::{DateTime, Utc};
 use sqlx::FromRow;
 use uuid::Uuid;
+
+use crate::{
+  context::RequestContext, failure::Failure, queries::store_members,
+  state::SharedState,
+};
 
 #[derive(SimpleObject)]
 #[graphql(rename_fields = "snake_case")]
@@ -20,7 +25,7 @@ pub struct Tokens {
   pub refresh_token_expires_at: i64,
 }
 
-#[derive(NewType)]
+#[derive(NewType, Clone)]
 pub struct UserId(Uuid);
 
 #[derive(SimpleObject)]
@@ -52,11 +57,11 @@ pub struct RevokedSession {
   pub id: SessionId,
 }
 
-#[derive(NewType, FromRow, Debug)]
+#[derive(NewType, FromRow, Clone, Debug)]
 pub struct StoreId(pub Uuid);
 
-#[derive(SimpleObject, FromRow, Debug)]
-#[graphql(rename_fields = "snake_case")]
+#[derive(SimpleObject, FromRow, Clone, Debug)]
+#[graphql(rename_fields = "snake_case", complex)]
 pub struct Store {
   #[sqlx(flatten)]
   pub id: StoreId,
@@ -69,8 +74,66 @@ pub struct Store {
   pub modified_at: Option<DateTime<Utc>>,
 }
 
+#[ComplexObject]
+impl Store {
+  async fn members(
+    &self,
+    context: &Context<'_>,
+    first: Option<i64>,
+    after: Option<Uuid>,
+    last: Option<i64>,
+    before: Option<Uuid>,
+  ) -> Result<StoreMemberConnection, Failure> {
+    store_members::resolve(
+      context.data_unchecked::<SharedState>(),
+      context.data_unchecked::<RequestContext>(),
+      self,
+      first,
+      after,
+      last,
+      before,
+    )
+    .await
+  }
+}
+
+#[derive(SimpleObject)]
+#[graphql(rename_fields = "snake_case")]
+pub struct StoreEdge {
+  pub cursor: StoreId,
+  pub node: Store,
+}
+
 #[derive(SimpleObject)]
 #[graphql(rename_fields = "snake_case")]
 pub struct StoreConnection {
+  pub edges: Vec<StoreEdge>,
   pub nodes: Vec<Store>,
+}
+
+#[derive(NewType, Clone)]
+pub struct StoreMemberId(Uuid);
+
+#[derive(SimpleObject, Clone)]
+#[graphql(rename_fields = "snake_case")]
+pub struct StoreMember {
+  pub id: StoreMemberId,
+  pub user_id: UserId,
+  pub store_id: StoreId,
+  pub created_at: DateTime<Utc>,
+  pub modified_at: Option<DateTime<Utc>>,
+}
+
+#[derive(SimpleObject)]
+#[graphql(rename_fields = "snake_case")]
+pub struct StoreMemberEdge {
+  pub cursor: StoreMemberId,
+  pub node: StoreMember,
+}
+
+#[derive(SimpleObject)]
+#[graphql(rename_fields = "snake_case")]
+pub struct StoreMemberConnection {
+  pub edges: Vec<StoreMemberEdge>,
+  pub nodes: Vec<StoreMember>,
 }

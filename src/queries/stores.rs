@@ -1,6 +1,6 @@
 use crate::{
   context::RequestContext,
-  entities::{Store, StoreConnection},
+  entities::{Store, StoreConnection, StoreEdge},
   failure::{Failure, FailureReason},
   state::SharedState,
 };
@@ -44,5 +44,14 @@ pub async fn resolve(
   .await
   .map_err(|_| failure!())?;
 
-  Ok(StoreConnection { nodes: stores })
+  Ok(StoreConnection {
+    edges: stores
+      .iter()
+      .map(|store| StoreEdge {
+        cursor: store.id.to_owned(),
+        node: store.clone(),
+      })
+      .collect(),
+    nodes: stores,
+  })
 }
