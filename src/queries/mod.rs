@@ -1,15 +1,20 @@
 use crate::{
   context::RequestContext,
-  entities::{Session, Store, StoreConnection, User},
+  entities::{
+    Customer, CustomerConnection, Session, Store, StoreConnection,
+    StoreMemberConnection, User,
+  },
   failure::Failure,
   state::SharedState,
 };
-use async_graphql::{Context, Object};
+use async_graphql::{ComplexObject, Context, Object};
 use uuid::Uuid;
 
+pub mod customer;
 pub mod session;
 pub mod sessions;
 pub mod store;
+pub mod store_customers;
 pub mod store_members;
 pub mod stores;
 pub mod viewer;
@@ -75,5 +80,61 @@ impl Query {
     slug: String,
   ) -> Result<Option<Store>, Failure> {
     store::resolve(context.data_unchecked::<SharedState>(), slug).await
+  }
+
+  async fn customer(
+    &self,
+    context: &Context<'_>,
+    id: Uuid,
+  ) -> Result<Option<Customer>, Failure> {
+    customer::resolve(
+      context.data_unchecked::<SharedState>(),
+      context.data_unchecked::<RequestContext>(),
+      id,
+    )
+    .await
+  }
+}
+
+#[ComplexObject]
+impl Store {
+  async fn members(
+    &self,
+    context: &Context<'_>,
+    first: Option<i64>,
+    after: Option<Uuid>,
+    last: Option<i64>,
+    before: Option<Uuid>,
+  ) -> Result<StoreMemberConnection, Failure> {
+    store_members::resolve(
+      context.data_unchecked::<SharedState>(),
+      context.data_unchecked::<RequestContext>(),
+      self,
+      first,
+      after,
+      last,
+      before,
+    )
+    .await
+  }
+
+  async fn customers(
+    &self,
+    context: &Context<'_>,
+    first: Option<i64>,
+    after: Option<Uuid>,
+    last: Option<i64>,
+    before: Option<Uuid>,
+  ) -> Result<CustomerConnection, Failure> {
+    store_customers::resolve(
+      context.data_unchecked::<SharedState>(),
+      context.data_unchecked::<RequestContext>(),
+      self,
+      first,
+      after,
+      last,
+      before,
+    )
+    .await
   }
 }
