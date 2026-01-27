@@ -144,3 +144,33 @@ pub struct CustomerConnection {
   pub edges: Vec<CustomerEdge>,
   pub nodes: Vec<Customer>,
 }
+
+#[derive(NewType, sqlx::Type, Clone)]
+#[sqlx(transparent)]
+pub struct ProductId(pub Uuid);
+
+#[derive(SimpleObject, FromRow, Clone)]
+#[graphql(rename_fields = "snake_case")]
+pub struct Product {
+  pub id: ProductId,
+  pub store_id: StoreId,
+  pub name: String,
+  pub description: Option<String>,
+  pub archived: bool,
+  pub created_at: DateTime<Utc>,
+  pub modified_at: Option<DateTime<Utc>>,
+}
+
+#[derive(SimpleObject)]
+#[graphql(rename_fields = "snake_case")]
+pub struct ProductEdge {
+  pub cursor: ProductId,
+  pub node: Product,
+}
+
+#[derive(SimpleObject)]
+#[graphql(rename_fields = "snake_case")]
+pub struct ProductConnection {
+  pub edges: Vec<ProductEdge>,
+  pub nodes: Vec<Product>,
+}

@@ -1,8 +1,8 @@
 use crate::{
   context::RequestContext,
   entities::{
-    Customer, CustomerConnection, Session, Store, StoreConnection,
-    StoreMemberConnection, User,
+    Customer, CustomerConnection, Product, ProductConnection, Session, Store,
+    StoreConnection, StoreMemberConnection, User,
   },
   failure::Failure,
   state::SharedState,
@@ -11,11 +11,13 @@ use async_graphql::{ComplexObject, Context, Object};
 use uuid::Uuid;
 
 pub mod customer;
+pub mod product;
 pub mod session;
 pub mod sessions;
 pub mod store;
 pub mod store_customers;
 pub mod store_members;
+pub mod store_products;
 pub mod stores;
 pub mod viewer;
 
@@ -94,6 +96,19 @@ impl Query {
     )
     .await
   }
+
+  async fn product(
+    &self,
+    context: &Context<'_>,
+    id: Uuid,
+  ) -> Result<Option<Product>, Failure> {
+    product::resolve(
+      context.data_unchecked::<SharedState>(),
+      context.data_unchecked::<RequestContext>(),
+      id,
+    )
+    .await
+  }
 }
 
 #[ComplexObject]
@@ -134,6 +149,28 @@ impl Store {
       after,
       last,
       before,
+    )
+    .await
+  }
+
+  async fn products(
+    &self,
+    context: &Context<'_>,
+    first: Option<i64>,
+    after: Option<Uuid>,
+    last: Option<i64>,
+    before: Option<Uuid>,
+    archived: Option<bool>,
+  ) -> Result<ProductConnection, Failure> {
+    store_products::resolve(
+      context.data_unchecked::<SharedState>(),
+      context.data_unchecked::<RequestContext>(),
+      self,
+      first,
+      after,
+      last,
+      before,
+      archived,
     )
     .await
   }
