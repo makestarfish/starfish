@@ -1,3 +1,4 @@
+use starfish_stripe::types::CreateCustomerParams;
 use uuid::Uuid;
 
 use crate::{
@@ -62,13 +63,28 @@ pub async fn resolve(
     )
   }
 
+  let mut create_customer_params =
+    CreateCustomerParams::new().with_email(&email);
+
+  if let Some(name) = name.as_ref() {
+    create_customer_params = create_customer_params.with_name(name);
+  }
+
+  let stripe_customer = state
+    .stripe
+    .customers
+    .create(create_customer_params)
+    .await
+    .map_err(|_| failure!())?;
+
   let customer = sqlx::query_as!(
     Customer,
     r#"
-      insert into customers (store_id, email, name)
-      values ($1, $2, $3)
+      insert into customers (stripe_id, store_id, email, name)
+      values ($1, $2, $3, $4)
       returning id, store_id, email, name, created_at, modified_at
     "#,
+    &stripe_customer.id,
     &store_id,
     &email,
     name

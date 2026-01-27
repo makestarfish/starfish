@@ -154,8 +154,7 @@ impl Mutation {
   async fn create_customer(
     &self,
     context: &Context<'_>,
-    #[graphql(name = "store_id")]
-    store_id: Uuid,
+    #[graphql(name = "store_id")] store_id: Uuid,
     email: String,
     name: Option<String>,
   ) -> Result<Customer, Failure> {
