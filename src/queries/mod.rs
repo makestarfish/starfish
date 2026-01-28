@@ -2,7 +2,8 @@ use crate::{
   context::RequestContext,
   entities::{
     Customer, CustomerConnection, Product, ProductConnection, Session, Store,
-    StoreConnection, StoreMemberConnection, User,
+    StoreConnection, StoreInvite, StoreInviteConnection, StoreMemberConnection,
+    User,
   },
   failure::Failure,
   state::SharedState,
@@ -16,6 +17,8 @@ pub mod session;
 pub mod sessions;
 pub mod store;
 pub mod store_customers;
+pub mod store_invite;
+pub mod store_invites;
 pub mod store_members;
 pub mod store_products;
 pub mod stores;
@@ -109,6 +112,20 @@ impl Query {
     )
     .await
   }
+
+  #[graphql(name = "store_invite")]
+  async fn store_invite(
+    &self,
+    context: &Context<'_>,
+    id: Uuid,
+  ) -> Result<Option<StoreInvite>, Failure> {
+    store_invite::resolve(
+      context.data_unchecked::<SharedState>(),
+      context.data_unchecked::<RequestContext>(),
+      id,
+    )
+    .await
+  }
 }
 
 #[ComplexObject]
@@ -171,6 +188,28 @@ impl Store {
       last,
       before,
       archived,
+    )
+    .await
+  }
+
+  async fn invites(
+    &self,
+    context: &Context<'_>,
+    first: Option<i64>,
+    after: Option<Uuid>,
+    last: Option<i64>,
+    before: Option<Uuid>,
+    revoked: Option<bool>,
+  ) -> Result<StoreInviteConnection, Failure> {
+    store_invites::resolve(
+      context.data_unchecked::<SharedState>(),
+      context.data_unchecked::<RequestContext>(),
+      self,
+      first,
+      after,
+      last,
+      before,
+      revoked,
     )
     .await
   }

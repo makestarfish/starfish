@@ -2,7 +2,7 @@ use crate::{
   context::RequestContext,
   entities::{
     Customer, DeletedCustomer, OneTimeToken, Product, RevokedSession, Store,
-    Tokens,
+    StoreInvite, Tokens,
   },
   failure::Failure,
   state::SharedState,
@@ -13,12 +13,14 @@ use uuid::Uuid;
 pub mod create_customer;
 pub mod create_product;
 pub mod create_store;
+pub mod create_store_invite;
 pub mod delete_customer;
 pub mod login_with_email;
 pub mod refresh_session;
 pub mod revoke_current_session;
 pub mod revoke_other_sessions;
 pub mod revoke_session;
+pub mod revoke_store_invite;
 pub mod send_login_code;
 pub mod update_customer;
 pub mod update_product;
@@ -149,6 +151,36 @@ impl Mutation {
       email,
       website,
       avatar_url,
+    )
+    .await
+  }
+
+  #[graphql(name = "create_store_invite")]
+  async fn create_store_invite(
+    &self,
+    context: &Context<'_>,
+    store_id: Uuid,
+    email: String,
+  ) -> Result<StoreInvite, Failure> {
+    create_store_invite::resolve(
+      context.data_unchecked::<SharedState>(),
+      context.data_unchecked::<RequestContext>(),
+      store_id,
+      email,
+    )
+    .await
+  }
+
+  #[graphql(name = "revoke_store_invite")]
+  async fn revoke_store_invite(
+    &self,
+    context: &Context<'_>,
+    id: Uuid,
+  ) -> Result<StoreInvite, Failure> {
+    revoke_store_invite::resolve(
+      context.data_unchecked::<SharedState>(),
+      context.data_unchecked::<RequestContext>(),
+      id,
     )
     .await
   }
