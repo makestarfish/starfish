@@ -1,7 +1,8 @@
 use crate::{
   context::RequestContext,
   entities::{
-    Customer, DeletedCustomer, OneTimeToken, RevokedSession, Store, Tokens,
+    Customer, DeletedCustomer, OneTimeToken, Product, RevokedSession, Store,
+    Tokens,
   },
   failure::Failure,
   state::SharedState,
@@ -10,6 +11,7 @@ use async_graphql::{Context, MaybeUndefined, Object};
 use uuid::Uuid;
 
 pub mod create_customer;
+pub mod create_product;
 pub mod create_store;
 pub mod delete_customer;
 pub mod login_with_email;
@@ -19,6 +21,7 @@ pub mod revoke_other_sessions;
 pub mod revoke_session;
 pub mod send_login_code;
 pub mod update_customer;
+pub mod update_product;
 pub mod update_store;
 
 pub struct Mutation;
@@ -196,6 +199,44 @@ impl Mutation {
       context.data_unchecked::<SharedState>(),
       context.data_unchecked::<RequestContext>(),
       id,
+    )
+    .await
+  }
+
+  #[graphql(name = "create_product")]
+  async fn create_product(
+    &self,
+    context: &Context<'_>,
+    #[graphql(name = "store_id")] store_id: Uuid,
+    name: String,
+    description: Option<String>,
+  ) -> Result<Product, Failure> {
+    create_product::resolve(
+      context.data_unchecked::<SharedState>(),
+      context.data_unchecked::<RequestContext>(),
+      store_id,
+      name,
+      description,
+    )
+    .await
+  }
+
+  #[graphql(name = "update_product")]
+  async fn update_product(
+    &self,
+    context: &Context<'_>,
+    id: Uuid,
+    name: Option<String>,
+    description: MaybeUndefined<String>,
+    archived: Option<bool>,
+  ) -> Result<Product, Failure> {
+    update_product::resolve(
+      context.data_unchecked::<SharedState>(),
+      context.data_unchecked::<RequestContext>(),
+      id,
+      name,
+      description,
+      archived,
     )
     .await
   }
