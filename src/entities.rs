@@ -146,7 +146,9 @@ pub struct CustomerConnection {
   pub nodes: Vec<Customer>,
 }
 
-#[derive(NewType, sqlx::Type, Deserialize, Clone, PartialEq, Eq, Hash, Debug)]
+#[derive(
+  NewType, sqlx::Type, Deserialize, Clone, PartialEq, Eq, Hash, Debug,
+)]
 #[sqlx(transparent)]
 pub struct ProductId(pub Uuid);
 
@@ -182,7 +184,9 @@ pub struct ProductConnection {
   pub nodes: Vec<Product>,
 }
 
-#[derive(NewType, sqlx::Type, Clone, PartialEq, Eq, Hash, Deserialize, Debug)]
+#[derive(
+  NewType, sqlx::Type, Clone, PartialEq, Eq, Hash, Deserialize, Debug,
+)]
 #[sqlx(transparent)]
 pub struct PriceId(pub Uuid);
 
