@@ -1,14 +1,15 @@
 use crate::{
   context::RequestContext,
+  dataloader::DataLoader as StarfishLoader,
   entities::{
-    Customer, CustomerConnection, Product, ProductConnection, Session, Store,
-    StoreConnection, StoreInvite, StoreInviteConnection, StoreMemberConnection,
-    User,
+    Customer, CustomerConnection, Price, Product, ProductConnection, Session,
+    Store, StoreConnection, StoreInvite, StoreInviteConnection,
+    StoreMemberConnection, User,
   },
   failure::Failure,
   state::SharedState,
 };
-use async_graphql::{ComplexObject, Context, Object};
+use async_graphql::{ComplexObject, Context, Object, dataloader::DataLoader};
 use uuid::Uuid;
 
 pub mod customer;
@@ -212,5 +213,16 @@ impl Store {
       revoked,
     )
     .await
+  }
+}
+
+#[ComplexObject]
+impl Product {
+  async fn prices(&self, context: &Context<'_>) -> Result<Vec<Price>, Failure> {
+    context
+      .data_unchecked::<DataLoader<StarfishLoader>>()
+      .load_one(self.id.to_owned())
+      .await
+      .map(|prices| prices.unwrap())
   }
 }

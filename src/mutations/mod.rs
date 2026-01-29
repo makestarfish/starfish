@@ -1,8 +1,8 @@
 use crate::{
   context::RequestContext,
   entities::{
-    Customer, DeletedCustomer, OneTimeToken, Product, RevokedSession, Store,
-    StoreInvite, Tokens,
+    CreateProductPrice, Customer, DeletedCustomer, OneTimeToken, Product,
+    RevokedSession, Store, StoreInvite, Tokens,
   },
   failure::Failure,
   state::SharedState,
@@ -242,6 +242,9 @@ impl Mutation {
     #[graphql(name = "store_id")] store_id: Uuid,
     name: String,
     description: Option<String>,
+    #[graphql(validator(min_items = 1, max_items = 1))] prices: Vec<
+      CreateProductPrice,
+    >,
   ) -> Result<Product, Failure> {
     create_product::resolve(
       context.data_unchecked::<SharedState>(),
@@ -249,6 +252,7 @@ impl Mutation {
       store_id,
       name,
       description,
+      prices,
     )
     .await
   }

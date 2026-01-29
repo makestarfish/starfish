@@ -7,6 +7,7 @@ macro_rules! failure_reasons {
       ($status:expr, $id:ident, $phrase:expr),
     )+
   ) => {
+    #[derive(Clone)]
     #[allow(non_camel_case_types)]
     pub enum FailureReason {
       $(
@@ -52,6 +53,7 @@ failure_reasons! {
   (409, CONFLICT, "The request conflicts with an existing resource"),
 }
 
+#[derive(Clone)]
 pub struct Failure {
   pub reason: FailureReason,
   pub message: String,

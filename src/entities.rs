@@ -1,5 +1,6 @@
-use async_graphql::{NewType, SimpleObject};
+use async_graphql::{InputObject, NewType, SimpleObject};
 use chrono::{DateTime, Utc};
+use serde::Deserialize;
 use sqlx::FromRow;
 use uuid::Uuid;
 
@@ -145,12 +146,12 @@ pub struct CustomerConnection {
   pub nodes: Vec<Customer>,
 }
 
-#[derive(NewType, sqlx::Type, Clone)]
+#[derive(NewType, sqlx::Type, Deserialize, Clone, PartialEq, Eq, Hash, Debug)]
 #[sqlx(transparent)]
 pub struct ProductId(pub Uuid);
 
 #[derive(SimpleObject, FromRow, Clone)]
-#[graphql(rename_fields = "snake_case")]
+#[graphql(rename_fields = "snake_case", complex)]
 pub struct Product {
   pub id: ProductId,
   pub store_id: StoreId,
@@ -159,6 +160,12 @@ pub struct Product {
   pub archived: bool,
   pub created_at: DateTime<Utc>,
   pub modified_at: Option<DateTime<Utc>>,
+}
+
+#[derive(InputObject)]
+#[graphql(rename_fields = "snake_case")]
+pub struct CreateProductPrice {
+  pub amount: i64,
 }
 
 #[derive(SimpleObject)]
@@ -173,6 +180,21 @@ pub struct ProductEdge {
 pub struct ProductConnection {
   pub edges: Vec<ProductEdge>,
   pub nodes: Vec<Product>,
+}
+
+#[derive(NewType, sqlx::Type, Clone, PartialEq, Eq, Hash, Deserialize, Debug)]
+#[sqlx(transparent)]
+pub struct PriceId(pub Uuid);
+
+#[derive(SimpleObject, Deserialize, Clone, Debug)]
+#[graphql(rename_fields = "snake_case")]
+pub struct Price {
+  pub id: PriceId,
+  pub product_id: ProductId,
+  pub amount: i64,
+  pub archived: bool,
+  pub created_at: DateTime<Utc>,
+  pub modified_at: Option<DateTime<Utc>>,
 }
 
 #[derive(NewType, sqlx::Type, Clone)]

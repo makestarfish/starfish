@@ -1,6 +1,6 @@
 use crate::{
   context::RequestContext,
-  entities::Product,
+  entities::{CreateProductPrice, Product},
   failure::{Failure, FailureReason},
   state::SharedState,
 };
@@ -13,6 +13,7 @@ pub async fn resolve(
   store_id: Uuid,
   name: String,
   description: Option<String>,
+  prices: Vec<CreateProductPrice>,
 ) -> Result<Product, Failure> {
   let user_id = context
     .user_id
@@ -53,6 +54,8 @@ pub async fn resolve(
     .await
     .map_err(|_| failure!())?;
 
+  let mut tx = state.db.begin().await.map_err(|_| failure!())?;
+
   let product = sqlx::query_as!(
     Product,
     r#"
@@ -65,9 +68,23 @@ pub async fn resolve(
     &name,
     description
   )
-  .fetch_one(&state.db)
+  .fetch_one(&mut *tx)
   .await
   .map_err(|_| failure!())?;
+
+  sqlx::query!(
+    r#"
+      insert into prices (product_id, amount)
+      values ($1, $2)
+    "#,
+    &product.id.0,
+    prices.first().unwrap().amount,
+  )
+  .execute(&mut *tx)
+  .await
+  .map_err(|_| failure!())?;
+
+  tx.commit().await.map_err(|_| failure!())?;
 
   Ok(product)
 }

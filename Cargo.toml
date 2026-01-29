@@ -7,7 +7,7 @@ edition = "2024"
 tokio = { version = "1.49.0", features = ["macros", "rt-multi-thread"] }
 axum = { version = "0.8.8", features = ["macros"] }
 axum-extra = { version = "0.12.5", features = ["typed-header"] }
-async-graphql = { version = "7.2.0", features = ["chrono", "uuid"] }
+async-graphql = { version = "7.2.0", features = ["chrono", "uuid", "dataloader"] }
 async-graphql-axum = "7.2.0"
 serde = { version = "1.0.228", features = ["derive"] }
 sqlx = { version = "0.8.6", features = ["runtime-tokio", "macros", "postgres", "tls-rustls", "uuid", "chrono"] }

@@ -4,6 +4,7 @@ pub mod failure;
 pub mod auth;
 pub mod config;
 pub mod context;
+pub mod dataloader;
 pub mod entities;
 pub mod mutations;
 pub mod queries;
