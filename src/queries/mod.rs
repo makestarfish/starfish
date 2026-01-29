@@ -2,9 +2,9 @@ use crate::{
   context::RequestContext,
   dataloader::DataLoader as StarfishLoader,
   entities::{
-    Customer, CustomerConnection, Price, Product, ProductConnection, Session,
-    Store, StoreConnection, StoreInvite, StoreInviteConnection,
-    StoreMemberConnection, User,
+    CheckoutSession, CheckoutSessionConnection, Customer, CustomerConnection,
+    Price, Product, ProductConnection, Session, Store, StoreConnection,
+    StoreInvite, StoreInviteConnection, StoreMemberConnection, User,
   },
   failure::Failure,
   state::SharedState,
@@ -12,6 +12,8 @@ use crate::{
 use async_graphql::{ComplexObject, Context, Object, dataloader::DataLoader};
 use uuid::Uuid;
 
+pub mod checkout_session;
+pub mod checkout_sessions;
 pub mod customer;
 pub mod product;
 pub mod session;
@@ -121,6 +123,42 @@ impl Query {
     id: Uuid,
   ) -> Result<Option<StoreInvite>, Failure> {
     store_invite::resolve(
+      context.data_unchecked::<SharedState>(),
+      context.data_unchecked::<RequestContext>(),
+      id,
+    )
+    .await
+  }
+
+  #[graphql(name = "checkout_sessions")]
+  async fn checkout_sessions(
+    &self,
+    context: &Context<'_>,
+    #[graphql(name = "store_id")] store_id: Uuid,
+    first: Option<i64>,
+    after: Option<Uuid>,
+    last: Option<i64>,
+    before: Option<Uuid>,
+  ) -> Result<CheckoutSessionConnection, Failure> {
+    checkout_sessions::resolve(
+      context.data_unchecked::<SharedState>(),
+      context.data_unchecked::<RequestContext>(),
+      store_id,
+      first,
+      after,
+      last,
+      before,
+    )
+    .await
+  }
+
+  #[graphql(name = "checkout_session")]
+  async fn checkout_session(
+    &self,
+    context: &Context<'_>,
+    id: Uuid,
+  ) -> Result<Option<CheckoutSession>, Failure> {
+    checkout_session::resolve(
       context.data_unchecked::<SharedState>(),
       context.data_unchecked::<RequestContext>(),
       id,

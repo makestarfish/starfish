@@ -1,4 +1,4 @@
-use async_graphql::{InputObject, NewType, SimpleObject};
+use async_graphql::{Enum, InputObject, NewType, SimpleObject};
 use chrono::{DateTime, Utc};
 use serde::Deserialize;
 use sqlx::FromRow;
@@ -229,4 +229,49 @@ pub struct StoreInviteEdge {
 pub struct StoreInviteConnection {
   pub edges: Vec<StoreInviteEdge>,
   pub nodes: Vec<StoreInvite>,
+}
+
+#[derive(Enum, sqlx::Type, Clone, Copy, PartialEq, Eq)]
+#[sqlx(rename_all = "snake_case")]
+pub enum CheckoutSessionStatus {
+  Open,
+  Expired,
+  Confirmed,
+  Failed,
+  Succeeded,
+}
+
+#[derive(NewType, sqlx::Type, Clone)]
+#[sqlx(transparent)]
+pub struct CheckoutSessionId(pub Uuid);
+
+#[derive(SimpleObject, Clone)]
+#[graphql(rename_fields = "snake_case")]
+pub struct CheckoutSession {
+  pub id: CheckoutSessionId,
+  pub store_id: StoreId,
+  pub customer_id: Option<CustomerId>,
+  pub amount: i64,
+  pub tax_amount: Option<i64>,
+  pub discount_amount: i64,
+  pub net_amount: i64,
+  pub total_amount: i64,
+  pub client_secret: String,
+  pub status: CheckoutSessionStatus,
+  pub created_at: DateTime<Utc>,
+  pub modified_at: Option<DateTime<Utc>>,
+}
+
+#[derive(SimpleObject)]
+#[graphql(rename_fields = "snake_case")]
+pub struct CheckoutSessionEdge {
+  pub cursor: CheckoutSessionId,
+  pub node: CheckoutSession,
+}
+
+#[derive(SimpleObject)]
+#[graphql(rename_fields = "snake_case")]
+pub struct CheckoutSessionConnection {
+  pub edges: Vec<CheckoutSessionEdge>,
+  pub nodes: Vec<CheckoutSession>,
 }
