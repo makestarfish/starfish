@@ -111,9 +111,11 @@ pub struct StoreMemberConnection {
   pub nodes: Vec<StoreMember>,
 }
 
-#[derive(NewType, sqlx::Type, Clone)]
+#[derive(
+  NewType, sqlx::Type, Clone, PartialEq, Eq, Hash, Deserialize, Debug,
+)]
 #[sqlx(transparent)]
-pub struct CustomerId(Uuid);
+pub struct CustomerId(pub Uuid);
 
 #[derive(SimpleObject, FromRow, Clone)]
 #[graphql(rename_fields = "snake_case")]
@@ -241,7 +243,9 @@ pub enum CheckoutSessionStatus {
   Succeeded,
 }
 
-#[derive(NewType, sqlx::Type, Clone)]
+#[derive(
+  NewType, sqlx::Type, Clone, PartialEq, Eq, Hash, Deserialize, Debug,
+)]
 #[sqlx(transparent)]
 pub struct CheckoutSessionId(pub Uuid);
 
@@ -250,13 +254,13 @@ pub struct CheckoutSessionId(pub Uuid);
 pub struct CheckoutSession {
   pub id: CheckoutSessionId,
   pub store_id: StoreId,
+  pub product_id: ProductId,
   pub customer_id: Option<CustomerId>,
   pub amount: i64,
   pub tax_amount: Option<i64>,
   pub discount_amount: i64,
   pub net_amount: i64,
   pub total_amount: i64,
-  pub client_secret: String,
   pub status: CheckoutSessionStatus,
   pub created_at: DateTime<Utc>,
   pub modified_at: Option<DateTime<Utc>>,
@@ -274,4 +278,78 @@ pub struct CheckoutSessionEdge {
 pub struct CheckoutSessionConnection {
   pub edges: Vec<CheckoutSessionEdge>,
   pub nodes: Vec<CheckoutSession>,
+}
+
+#[derive(Enum, sqlx::Type, Clone, Copy, PartialEq, Eq)]
+#[sqlx(rename_all = "snake_case")]
+pub enum OrderStatus {
+  Pending,
+  Paid,
+  Refunded,
+  PartiallyRefunded,
+}
+
+#[derive(Enum, sqlx::Type, Clone, Copy, PartialEq, Eq)]
+#[sqlx(rename_all = "snake_case")]
+pub enum BillingReason {
+  Purchase,
+  SubscriptionCreation,
+  SubscriptionRenewal,
+  SubscriptionUpdate,
+}
+
+#[derive(
+  NewType, sqlx::Type, Clone, PartialEq, Eq, Hash, Deserialize, Debug,
+)]
+#[sqlx(transparent)]
+pub struct OrderId(pub Uuid);
+
+#[derive(SimpleObject, Clone)]
+#[graphql(rename_fields = "snake_case", complex)]
+pub struct Order {
+  pub id: OrderId,
+  pub store_id: StoreId,
+  pub customer_id: CustomerId,
+  pub checkout_session_id: Option<CheckoutSessionId>,
+  pub status: OrderStatus,
+  pub subtotal_amount: i64,
+  pub discount_amount: i64,
+  pub net_amount: i64,
+  pub tax_amount: i64,
+  pub total_amount: i64,
+  pub platform_fee_amount: i64,
+  pub billing_reason: BillingReason,
+  pub created_at: DateTime<Utc>,
+  pub modified_at: Option<DateTime<Utc>>,
+}
+
+#[derive(SimpleObject)]
+#[graphql(rename_fields = "snake_case")]
+pub struct OrderEdge {
+  pub cursor: OrderId,
+  pub node: Order,
+}
+
+#[derive(SimpleObject)]
+#[graphql(rename_fields = "snake_case")]
+pub struct OrderConnection {
+  pub edges: Vec<OrderEdge>,
+  pub nodes: Vec<Order>,
+}
+
+#[derive(NewType, sqlx::Type, Clone, Deserialize, Debug)]
+#[sqlx(transparent)]
+pub struct OrderItemId(pub Uuid);
+
+#[derive(SimpleObject, Clone, Deserialize, Debug)]
+#[graphql(rename_fields = "snake_case")]
+pub struct OrderItem {
+  pub id: OrderItemId,
+  pub order_id: OrderId,
+  pub product_price_id: PriceId,
+  pub label: String,
+  pub amount: i64,
+  pub tax_amount: i64,
+  pub created_at: DateTime<Utc>,
+  pub modified_at: Option<DateTime<Utc>>,
 }

@@ -1,13 +1,14 @@
+use uuid::Uuid;
+
 use crate::{
   context::RequestContext,
   entities::{
-    CheckoutSession, CheckoutSessionConnection, CheckoutSessionEdge,
-    CheckoutSessionStatus, CustomerId,
+    BillingReason, CheckoutSessionId, Order, OrderConnection, OrderEdge,
+    OrderStatus,
   },
   failure::{Failure, FailureReason},
   state::SharedState,
 };
-use uuid::Uuid;
 
 pub async fn resolve(
   state: &SharedState,
@@ -17,7 +18,7 @@ pub async fn resolve(
   after: Option<Uuid>,
   _last: Option<i64>,
   before: Option<Uuid>,
-) -> Result<CheckoutSessionConnection, Failure> {
+) -> Result<OrderConnection, Failure> {
   let user_id = context
     .user_id
     .ok_or_else(|| failure!(FailureReason::UNAUTHORIZED))?;
@@ -33,7 +34,7 @@ pub async fn resolve(
       where s.id = $1
     "#,
     &store_id,
-    &user_id,
+    &user_id
   )
   .fetch_optional(&state.db)
   .await
@@ -41,8 +42,7 @@ pub async fn resolve(
   .ok_or_else(|| {
     failure!(
       FailureReason::NOT_FOUND,
-      "The store '{}' could not be found",
-      &store_id
+      "The store '{store_id}' could not be found"
     )
   })?;
 
@@ -53,24 +53,26 @@ pub async fn resolve(
     )
   }
 
-  let checkout_sessions = sqlx::query_as!(
-    CheckoutSession,
+  let orders = sqlx::query_as!(
+    Order,
     r#"
       select 
-        id, 
-        store_id, 
-        product_id,
-        customer_id as "customer_id: CustomerId",
-        status as "status: CheckoutSessionStatus",
-        amount,
+        id,
+        store_id,
+        customer_id,
+        checkout_session_id as "checkout_session_id: CheckoutSessionId",
+        status as "status: OrderStatus",
+        subtotal_amount,
         discount_amount,
+        (subtotal_amount - discount_amount) as "net_amount!",
         tax_amount,
-        (amount - discount_amount) as "net_amount!",
-        (amount - discount_amount + coalesce(tax_amount, 0)) as "total_amount!",
+        (subtotal_amount - discount_amount + tax_amount) as "total_amount!",
+        platform_fee_amount,
+        billing_reason as "billing_reason: BillingReason",
         created_at,
         modified_at
-      from checkout_sessions
-      where 
+      from orders o
+      where
         store_id = $1 and
         (id < $2 or $2 is null) and 
         (id > $3 or $3 is null)
@@ -85,14 +87,14 @@ pub async fn resolve(
   .await
   .map_err(|_| failure!())?;
 
-  Ok(CheckoutSessionConnection {
-    edges: checkout_sessions
+  Ok(OrderConnection {
+    edges: orders
       .iter()
-      .map(|checkout_session| CheckoutSessionEdge {
-        cursor: checkout_session.id.to_owned(),
-        node: checkout_session.to_owned(),
+      .map(|order| OrderEdge {
+        cursor: order.id.to_owned(),
+        node: order.to_owned(),
       })
       .collect(),
-    nodes: checkout_sessions,
+    nodes: orders,
   })
 }

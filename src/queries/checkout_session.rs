@@ -21,6 +21,7 @@ pub async fn resolve(
       select 
         cs.id, 
         cs.store_id, 
+        cs.product_id,
         cs.customer_id as "customer_id: CustomerId",
         cs.status as "status: CheckoutSessionStatus",
         cs.amount,
@@ -28,7 +29,6 @@ pub async fn resolve(
         cs.tax_amount,
         (cs.amount - cs.discount_amount) as "net_amount!",
         (cs.amount - cs.discount_amount + coalesce(cs.tax_amount, 0)) as "total_amount!",
-        cs.client_secret,
         cs.created_at,
         cs.modified_at
       from checkout_sessions cs
@@ -45,10 +45,7 @@ pub async fn resolve(
   )
   .fetch_optional(&state.db)
   .await
-  .map_err(|err| {
-    println!("{err:?}");
-    failure!()
-  })?;
+  .map_err(|_| failure!())?;
 
   Ok(checkout_session)
 }

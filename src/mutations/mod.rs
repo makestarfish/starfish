@@ -1,8 +1,8 @@
 use crate::{
   context::RequestContext,
   entities::{
-    CreateProductPrice, Customer, DeletedCustomer, OneTimeToken, Product,
-    RevokedSession, Store, StoreInvite, Tokens,
+    CheckoutSession, CreateProductPrice, Customer, DeletedCustomer,
+    OneTimeToken, Product, RevokedSession, Store, StoreInvite, Tokens,
   },
   failure::Failure,
   state::SharedState,
@@ -10,6 +10,8 @@ use crate::{
 use async_graphql::{Context, MaybeUndefined, Object};
 use uuid::Uuid;
 
+pub mod confirm_checkout_session;
+pub mod create_checkout_session;
 pub mod create_customer;
 pub mod create_product;
 pub mod create_store;
@@ -22,6 +24,7 @@ pub mod revoke_other_sessions;
 pub mod revoke_session;
 pub mod revoke_store_invite;
 pub mod send_login_code;
+pub mod update_checkout_session;
 pub mod update_customer;
 pub mod update_product;
 pub mod update_store;
@@ -273,6 +276,36 @@ impl Mutation {
       name,
       description,
       archived,
+    )
+    .await
+  }
+
+  #[graphql(name = "create_checkout_session")]
+  async fn create_checkout_session(
+    &self,
+    context: &Context<'_>,
+    #[graphql(validator(min_items = 1))] products: Vec<Uuid>,
+  ) -> Result<CheckoutSession, Failure> {
+    create_checkout_session::resolve(
+      context.data_unchecked::<SharedState>(),
+      context.data_unchecked::<RequestContext>(),
+      products,
+    )
+    .await
+  }
+
+  #[graphql(name = "update_checkout_session")]
+  async fn update_checkout_session(
+    &self,
+    context: &Context<'_>,
+    id: Uuid,
+    #[graphql(name = "product_id")] product_id: Option<Uuid>,
+  ) -> Result<CheckoutSession, Failure> {
+    update_checkout_session::resolve(
+      context.data_unchecked::<SharedState>(),
+      context.data_unchecked::<RequestContext>(),
+      id,
+      product_id,
     )
     .await
   }

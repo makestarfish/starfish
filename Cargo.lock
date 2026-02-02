@@ -2736,9 +2736,9 @@ dependencies = [
 
 [[package]]
 name = "starfish-stripe"
-version = "0.1.4"
+version = "0.1.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a92138c3c3e33744b8f72bdf5e44c316db6901ac019c1887f7235cf3e34954a0"
+checksum = "38970160a89ab63ee1bf3188180dc64628705ba6cabbdde4938a06b67f45020f"
 dependencies = [
  "reqwest",
  "serde",

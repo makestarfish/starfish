@@ -3,8 +3,9 @@ use crate::{
   dataloader::DataLoader as StarfishLoader,
   entities::{
     CheckoutSession, CheckoutSessionConnection, Customer, CustomerConnection,
-    Price, Product, ProductConnection, Session, Store, StoreConnection,
-    StoreInvite, StoreInviteConnection, StoreMemberConnection, User,
+    Order, OrderConnection, OrderItem, Price, Product, ProductConnection,
+    Session, Store, StoreConnection, StoreInvite, StoreInviteConnection,
+    StoreMemberConnection, User,
   },
   failure::Failure,
   state::SharedState,
@@ -15,6 +16,8 @@ use uuid::Uuid;
 pub mod checkout_session;
 pub mod checkout_sessions;
 pub mod customer;
+pub mod order;
+pub mod orders;
 pub mod product;
 pub mod session;
 pub mod sessions;
@@ -165,6 +168,40 @@ impl Query {
     )
     .await
   }
+
+  async fn orders(
+    &self,
+    context: &Context<'_>,
+    #[graphql(name = "store_id")] store_id: Uuid,
+    first: Option<i64>,
+    after: Option<Uuid>,
+    last: Option<i64>,
+    before: Option<Uuid>,
+  ) -> Result<OrderConnection, Failure> {
+    orders::resolve(
+      context.data_unchecked::<SharedState>(),
+      context.data_unchecked::<RequestContext>(),
+      store_id,
+      first,
+      after,
+      last,
+      before,
+    )
+    .await
+  }
+
+  async fn order(
+    &self,
+    context: &Context<'_>,
+    id: Uuid,
+  ) -> Result<Order, Failure> {
+    order::resolve(
+      context.data_unchecked::<SharedState>(),
+      context.data_unchecked::<RequestContext>(),
+      id,
+    )
+    .await
+  }
 }
 
 #[ComplexObject]
@@ -262,5 +299,43 @@ impl Product {
       .load_one(self.id.to_owned())
       .await
       .map(|prices| prices.unwrap())
+  }
+}
+
+#[ComplexObject]
+impl Order {
+  async fn customer(&self, context: &Context<'_>) -> Result<Customer, Failure> {
+    context
+      .data_unchecked::<DataLoader<StarfishLoader>>()
+      .load_one(self.customer_id.to_owned())
+      .await
+      .map(|customer| customer.unwrap())
+  }
+
+  #[graphql(name = "checkout_session")]
+  async fn checkout_session(
+    &self,
+    context: &Context<'_>,
+  ) -> Result<Option<CheckoutSession>, Failure> {
+    match self.checkout_session_id.as_ref() {
+      Some(checkout_session_id) => {
+        context
+          .data_unchecked::<DataLoader<StarfishLoader>>()
+          .load_one(checkout_session_id.to_owned())
+          .await
+      }
+      _ => Ok(None),
+    }
+  }
+
+  async fn items(
+    &self,
+    context: &Context<'_>,
+  ) -> Result<Vec<OrderItem>, Failure> {
+    context
+      .data_unchecked::<DataLoader<StarfishLoader>>()
+      .load_one(self.id.to_owned())
+      .await
+      .map(|items| items.unwrap())
   }
 }
