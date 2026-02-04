@@ -23,6 +23,7 @@ pub async fn resolve(
         cs.store_id, 
         cs.product_id,
         cs.customer_id as "customer_id: CustomerId",
+        cs.customer_email,
         cs.status as "status: CheckoutSessionStatus",
         cs.amount,
         cs.discount_amount,

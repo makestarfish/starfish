@@ -285,28 +285,32 @@ impl Mutation {
     &self,
     context: &Context<'_>,
     #[graphql(validator(min_items = 1))] products: Vec<Uuid>,
+    #[graphql(name = "customer_id")] customer_id: Option<Uuid>,
+    #[graphql(name = "customer_email")] customer_email: Option<String>,
   ) -> Result<CheckoutSession, Failure> {
     create_checkout_session::resolve(
       context.data_unchecked::<SharedState>(),
       context.data_unchecked::<RequestContext>(),
       products,
+      customer_id,
+      customer_email,
     )
     .await
   }
 
-  #[graphql(name = "update_checkout_session")]
-  async fn update_checkout_session(
-    &self,
-    context: &Context<'_>,
-    id: Uuid,
-    #[graphql(name = "product_id")] product_id: Option<Uuid>,
-  ) -> Result<CheckoutSession, Failure> {
-    update_checkout_session::resolve(
-      context.data_unchecked::<SharedState>(),
-      context.data_unchecked::<RequestContext>(),
-      id,
-      product_id,
-    )
-    .await
-  }
+  // #[graphql(name = "update_checkout_session")]
+  // async fn update_checkout_session(
+  //  &self,
+  //  context: &Context<'_>,
+  //  id: Uuid,
+  //  #[graphql(name = "product_id")] product_id: Option<Uuid>,
+  // ) -> Result<CheckoutSession, Failure> {
+  //  update_checkout_session::resolve(
+  //    context.data_unchecked::<SharedState>(),
+  //    context.data_unchecked::<RequestContext>(),
+  //    id,
+  //    product_id,
+  //  )
+  //  .await
+  // }
 }

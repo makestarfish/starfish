@@ -81,6 +81,7 @@ impl Loader<CheckoutSessionId> for DataLoader {
             store_id, 
             product_id,
             customer_id as "customer_id: CustomerId",
+            customer_email,
             status as "status: CheckoutSessionStatus",
             amount,
             discount_amount,

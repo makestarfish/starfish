@@ -256,6 +256,7 @@ pub struct CheckoutSession {
   pub store_id: StoreId,
   pub product_id: ProductId,
   pub customer_id: Option<CustomerId>,
+  pub customer_email: Option<String>,
   pub amount: i64,
   pub tax_amount: Option<i64>,
   pub discount_amount: i64,

@@ -51,6 +51,9 @@ failure_reasons! {
 
   /// 409 CONFLICT
   (409, CONFLICT, "The request conflicts with an existing resource"),
+
+  // 422 UNPROCESSABLE ENTITY
+  (422, UNPROCESSABLE_ENTITY, "The request is valid but cannot be processed in the current state"),
 }
 
 #[derive(Clone)]
