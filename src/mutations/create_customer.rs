@@ -80,14 +80,18 @@ pub async fn resolve(
   let customer = sqlx::query_as!(
     Customer,
     r#"
-      insert into customers (stripe_id, store_id, email, name)
-      values ($1, $2, $3, $4)
-      returning id, store_id, email, name, created_at, modified_at
+      insert into customers (stripe_id, store_id, email, name, avatar_url)
+      values ($1, $2, $3, $4, $5)
+      returning id, store_id, email, name, avatar_url, created_at, modified_at
     "#,
     &stripe_customer.id,
     &store_id,
     &email,
-    name
+    name,
+    format!(
+      "https://www.gravatar.com/avatar/{:x}?d=404",
+      md5::compute(email.as_bytes())
+    )
   )
   .fetch_one(&state.db)
   .await

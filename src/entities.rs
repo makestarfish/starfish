@@ -124,6 +124,7 @@ pub struct Customer {
   pub store_id: StoreId,
   pub email: String,
   pub name: Option<String>,
+  pub avatar_url: Option<String>,
   pub created_at: DateTime<Utc>,
   pub modified_at: Option<DateTime<Utc>>,
 }

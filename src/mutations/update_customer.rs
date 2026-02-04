@@ -22,7 +22,14 @@ pub async fn resolve(
   let customer = sqlx::query_as!(
     Customer,
     r#"
-      select c.id, c.store_id, c.name, c.email, c.created_at, c.modified_at
+      select 
+        c.id, 
+        c.store_id, 
+        c.email, 
+        c.name, 
+        c.avatar_url, 
+        c.created_at, 
+        c.modified_at
       from customers c
       where c.id = $1 and exists (
         select 1
@@ -66,7 +73,7 @@ pub async fn resolve(
   query_builder.push_bind(id);
 
   query_builder
-    .push(" returning id, store_id, email, name, created_at, modified_at");
+    .push(" returning id, store_id, email, name, avatar_url, created_at, modified_at");
 
   let updated_customer = query_builder
     .build_query_as::<Customer>()

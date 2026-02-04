@@ -16,7 +16,14 @@ pub async fn resolve(
   let customer = sqlx::query_as!(
     Customer,
     r#"
-      select c.id, c.store_id, c.name, c.email, c.created_at, c.modified_at
+      select 
+        c.id, 
+        c.store_id, 
+        c.email, 
+        c.name, 
+        c.avatar_url, 
+        c.created_at, 
+        c.modified_at
       from customers c
       where 
         c.id = $1 and
