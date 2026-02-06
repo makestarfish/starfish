@@ -1,8 +1,9 @@
 use crate::{
   context::RequestContext,
   entities::{
-    CheckoutSession, CreateProductPrice, Customer, DeletedCustomer,
-    OneTimeToken, Product, RevokedSession, Store, StoreInvite, Tokens,
+    CheckoutLink, CheckoutSession, CreateProductPrice, Customer,
+    DeletedCheckoutLink, DeletedCustomer, OneTimeToken, Product,
+    RevokedSession, Store, StoreInvite, Tokens,
   },
   failure::Failure,
   state::SharedState,
@@ -11,11 +12,13 @@ use async_graphql::{Context, MaybeUndefined, Object};
 use uuid::Uuid;
 
 pub mod confirm_checkout_session;
+pub mod create_checkout_link;
 pub mod create_checkout_session;
 pub mod create_customer;
 pub mod create_product;
 pub mod create_store;
 pub mod create_store_invite;
+pub mod delete_checkout_link;
 pub mod delete_customer;
 pub mod login_with_email;
 pub mod refresh_session;
@@ -24,6 +27,7 @@ pub mod revoke_other_sessions;
 pub mod revoke_session;
 pub mod revoke_store_invite;
 pub mod send_login_code;
+pub mod update_checkout_link;
 pub mod update_checkout_session;
 pub mod update_customer;
 pub mod update_product;
@@ -327,6 +331,56 @@ impl Mutation {
       client_secret,
       confirmation_token_id,
       customer_email,
+    )
+    .await
+  }
+
+  #[graphql(name = "create_checkout_link")]
+  async fn create_checkout_link(
+    &self,
+    context: &Context<'_>,
+    #[graphql(validator(min_items = 1))] products: Vec<Uuid>,
+    label: Option<String>,
+    #[graphql(name = "success_url")] success_url: Option<String>,
+  ) -> Result<CheckoutLink, Failure> {
+    create_checkout_link::resolve(
+      context.data_unchecked::<SharedState>(),
+      context.data_unchecked::<RequestContext>(),
+      products,
+      label,
+      success_url,
+    )
+    .await
+  }
+
+  #[graphql(name = "update_checkout_link")]
+  async fn update_checkout_link(
+    &self,
+    context: &Context<'_>,
+    id: Uuid,
+    label: MaybeUndefined<String>,
+    #[graphql(name = "success_url")] success_url: MaybeUndefined<String>,
+  ) -> Result<CheckoutLink, Failure> {
+    update_checkout_link::resolve(
+      context.data_unchecked::<SharedState>(),
+      context.data_unchecked::<RequestContext>(),
+      id,
+      label,
+      success_url,
+    )
+    .await
+  }
+
+  #[graphql(name = "delete_checkout_link")]
+  async fn delete_checkout_link(
+    &self,
+    context: &Context<'_>,
+    id: Uuid,
+  ) -> Result<DeletedCheckoutLink, Failure> {
+    delete_checkout_link::resolve(
+      context.data_unchecked::<SharedState>(),
+      context.data_unchecked::<RequestContext>(),
+      id,
     )
     .await
   }

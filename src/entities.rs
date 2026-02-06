@@ -283,6 +283,43 @@ pub struct CheckoutSessionConnection {
   pub nodes: Vec<CheckoutSession>,
 }
 
+#[derive(NewType, sqlx::Type, Clone)]
+#[sqlx(transparent)]
+pub struct CheckoutLinkId(pub Uuid);
+
+#[derive(SimpleObject, Clone, FromRow)]
+#[graphql(rename_fields = "snake_case")]
+pub struct CheckoutLink {
+  pub id: CheckoutLinkId,
+  pub store_id: StoreId,
+  pub client_secret: String,
+  pub label: Option<String>,
+  pub success_url: Option<String>,
+  pub url: String,
+  pub created_at: DateTime<Utc>,
+  pub modified_at: Option<DateTime<Utc>>,
+}
+
+#[derive(SimpleObject)]
+#[graphql(rename_fields = "snake_case")]
+pub struct DeletedCheckoutLink {
+  pub id: CheckoutLinkId,
+}
+
+#[derive(SimpleObject)]
+#[graphql(rename_fields = "snake_case")]
+pub struct CheckoutLinkEdge {
+  pub cursor: CheckoutLinkId,
+  pub node: CheckoutLink,
+}
+
+#[derive(SimpleObject)]
+#[graphql(rename_fields = "snake_case")]
+pub struct CheckoutLinkConnection {
+  pub edges: Vec<CheckoutLinkEdge>,
+  pub nodes: Vec<CheckoutLink>,
+}
+
 #[derive(Enum, sqlx::Type, Clone, Copy, PartialEq, Eq)]
 #[sqlx(rename_all = "snake_case")]
 pub enum OrderStatus {

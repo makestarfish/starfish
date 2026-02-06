@@ -11,6 +11,7 @@ pub struct Config {
   pub database_url: String,
   pub resend_api_key: String,
   pub stripe_secret_key: String,
+  pub website_base_url: String,
   pub jwt_secret: String,
 }
 
