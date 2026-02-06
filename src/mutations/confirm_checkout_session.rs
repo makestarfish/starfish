@@ -15,6 +15,7 @@ pub async fn resolve(
     r#"
       select
         id,
+        stripe_id,
         store_id,
         customer_id,
         customer_email
