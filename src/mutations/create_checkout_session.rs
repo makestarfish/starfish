@@ -3,6 +3,7 @@ use crate::{
   entities::{CheckoutSession, CheckoutSessionStatus, CustomerId},
   failure::{Failure, FailureReason},
   state::SharedState,
+  utils::create_client_secret,
 };
 use uuid::Uuid;
 
@@ -99,23 +100,27 @@ pub async fn resolve(
 
   let mut tx = state.db.begin().await.map_err(|_| failure!())?;
 
+  let client_secret = create_client_secret("starfish_c_");
+
   let checkout_session = sqlx::query_as!(
     CheckoutSession,
     r#"
       insert into checkout_sessions (
+        client_secret,
         store_id, 
         product_id, 
         customer_id, 
         amount, 
         customer_email
       )
-      values ($1, $2, $3, $4, $5)
+      values ($1, $2, $3, $4, $5, $6)
       returning
         id,
         store_id,
         product_id,
         customer_id as "customer_id: CustomerId",
         customer_email,
+        client_secret,
         status as "status: CheckoutSessionStatus",
         amount,
         discount_amount,
@@ -125,6 +130,7 @@ pub async fn resolve(
         created_at,
         modified_at
     "#,
+    &client_secret,
     &product.store_id,
     &product.id,
     customer_id,

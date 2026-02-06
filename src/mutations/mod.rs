@@ -313,4 +313,21 @@ impl Mutation {
   //  )
   //  .await
   // }
+
+  #[graphql(name = "confirm_checkout_session")]
+  async fn confirm_checkout_session(
+    &self,
+    context: &Context<'_>,
+    #[graphql(name = "client_secret")] client_secret: String,
+    #[graphql(name = "confirmation_token_id")] confirmation_token_id: String,
+    #[graphql(name = "customer_email")] customer_email: Option<String>,
+  ) -> Result<CheckoutSession, Failure> {
+    confirm_checkout_session::resolve(
+      context.data_unchecked::<SharedState>(),
+      client_secret,
+      confirmation_token_id,
+      customer_email,
+    )
+    .await
+  }
 }

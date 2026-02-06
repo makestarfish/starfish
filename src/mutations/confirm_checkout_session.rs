@@ -4,11 +4,10 @@ use crate::{
   state::SharedState,
 };
 use starfish_stripe::types::CreateCustomerParams;
-use uuid::Uuid;
 
 pub async fn resolve(
   state: &SharedState,
-  id: Uuid,
+  client_secret: String,
   _confirmation_token_id: String,
   customer_email: Option<String>,
 ) -> Result<CheckoutSession, Failure> {
@@ -20,9 +19,9 @@ pub async fn resolve(
         customer_id,
         customer_email
       from checkout_sessions
-      where id = $1
+      where client_secret = $1
     "#,
-    &id,
+    &client_secret,
   )
   .fetch_optional(&state.db)
   .await
@@ -30,7 +29,7 @@ pub async fn resolve(
   .ok_or_else(|| {
     failure!(
       FailureReason::NOT_FOUND,
-      "The checkout session '{id}' could not be found"
+      "The checkout session '{client_secret}' could not be found"
     )
   })?;
 
@@ -113,6 +112,7 @@ pub async fn resolve(
         product_id,
         customer_id as "customer_id: CustomerId",
         customer_email,
+        client_secret,
         status as "status: CheckoutSessionStatus",
         amount,
         discount_amount,
