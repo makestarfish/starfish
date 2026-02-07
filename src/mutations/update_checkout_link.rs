@@ -5,7 +5,6 @@ use crate::{
   state::SharedState,
 };
 use async_graphql::MaybeUndefined;
-use sqlx::QueryBuilder;
 use uuid::Uuid;
 
 pub async fn resolve(
@@ -58,33 +57,32 @@ pub async fn resolve(
     return Ok(checkout_link);
   }
 
-  let mut query_builder = QueryBuilder::new("update checkout_links ");
-  let mut separated = query_builder.separated(", ");
-
-  if let Some(label) = label.as_opt_ref() {
-    separated.push("label = ");
-    separated.push_bind_unseparated(label);
-  }
-
-  if let Some(success_url) = success_url.as_opt_ref() {
-    separated.push("success_url = ");
-    separated.push_bind_unseparated(success_url);
-  }
-
-  separated.push("modified_at = now()");
-
-  query_builder.push(" where id = ");
-  query_builder.push_bind(id);
-
-  query_builder.push(" returning id, store_id, client_secret, label, success_url, created_at, modified_at, rtrim(");
-  query_builder.push_bind(&state.config.website_base_url);
-  query_builder.push(", '/') || '/' || client_secret as url");
-
-  let updated_checkout_link = query_builder
-    .build_query_as::<CheckoutLink>()
-    .fetch_one(&state.db)
-    .await
-    .map_err(|_| failure!())?;
+  let updated_checkout_link = sqlx::query_as!(
+    CheckoutLink,
+    r#"
+      update checkout_links 
+      set label = $2, success_url = $3, modified_at = now()
+      where id = $1
+      returning
+        id, 
+        store_id, 
+        client_secret, 
+        label, 
+        success_url, 
+        rtrim($4, '/') || '/' || client_secret as "url!",
+        created_at, 
+        modified_at
+    "#,
+    &id,
+    label.as_opt_ref().unwrap_or(checkout_link.label.as_ref()),
+    success_url
+      .as_opt_ref()
+      .unwrap_or(checkout_link.success_url.as_ref()),
+    &state.config.website_base_url,
+  )
+  .fetch_one(&state.db)
+  .await
+  .map_err(|_| failure!())?;
 
   Ok(updated_checkout_link)
 }
