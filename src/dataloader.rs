@@ -1,9 +1,8 @@
 use crate::{
-  entities::{
+  config::Config, entities::{
     CheckoutSession, CheckoutSessionId, CheckoutSessionStatus, Customer,
     CustomerId, OrderId, OrderItem, Price, ProductId,
-  },
-  failure::Failure,
+  }, failure::Failure
 };
 use async_graphql::dataloader::Loader;
 use sqlx::{PgPool, types::Json};
@@ -12,11 +11,12 @@ use uuid::Uuid;
 
 pub struct DataLoader {
   db: PgPool,
+  config: Config,
 }
 
 impl DataLoader {
-  pub fn new(db: PgPool) -> Self {
-    Self { db }
+  pub fn new(db: PgPool, config: Config) -> Self {
+    Self { db, config }
   }
 }
 
@@ -84,6 +84,7 @@ impl Loader<CheckoutSessionId> for DataLoader {
             customer_email,
             client_secret,
             status as "status: CheckoutSessionStatus",
+            rtrim($2, '/') || '/checkout/' || client_secret as "url!",
             amount,
             discount_amount,
             tax_amount,
@@ -94,7 +95,8 @@ impl Loader<CheckoutSessionId> for DataLoader {
           from checkout_sessions
           where id = any($1)
         "#,
-        &keys.iter().map(|id| id.0).collect::<Vec<Uuid>>()
+        &keys.iter().map(|id| id.0).collect::<Vec<Uuid>>(),
+        &self.config.website_base_url,
       )
       .fetch_all(&self.db)
       .await

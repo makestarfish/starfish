@@ -26,6 +26,7 @@ pub async fn resolve(
         cs.customer_email,
         cs.client_secret,
         cs.status as "status: CheckoutSessionStatus",
+        rtrim($3, '/') || '/checkout' || cs.client_secret as "url!",
         cs.amount,
         cs.discount_amount,
         cs.tax_amount,
@@ -44,6 +45,7 @@ pub async fn resolve(
     "#,
     &id,
     &user_id,
+    &state.config.website_base_url,
   )
   .fetch_optional(&state.db)
   .await

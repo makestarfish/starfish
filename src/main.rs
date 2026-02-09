@@ -35,7 +35,7 @@ async fn main() {
   let schema = Schema::build(Query, Mutation, EmptySubscription)
     .data(state.clone())
     .data(DataLoader::new(
-      StarfishLoader::new(state.db.clone()),
+      StarfishLoader::new(state.db.clone(), state.config.clone()),
       tokio::spawn,
     ))
     .finish();

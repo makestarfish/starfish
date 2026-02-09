@@ -27,6 +27,7 @@ pub async fn resolve(
         cs.customer_email,
         cs.client_secret,
         cs.status as "status: CheckoutSessionStatus",
+        rtrim($3, '/') || '/checkout/' || cs.client_secret as "url!",
         cs.amount,
         cs.discount_amount,
         cs.tax_amount,
@@ -45,6 +46,7 @@ pub async fn resolve(
     "#,
     &id,
     &user_id,
+    &state.config.website_base_url,
   ).fetch_optional(&state.db)
   .await
   .map_err(|_| failure!())?
@@ -95,6 +97,7 @@ pub async fn resolve(
           customer_email,
           client_secret,
           status as "status: CheckoutSessionStatus",
+          rtrim($4, '/') || '/checkout/' || client_secret as "url!",
           amount,
           discount_amount,
           tax_amount,
@@ -105,7 +108,8 @@ pub async fn resolve(
       "#,
       &id,
       &product_id,
-      price.amount
+      price.amount,
+      &state.config.website_base_url,
     ).fetch_one(&state.db).await.map_err(|_| failure!())?;
 
     return Ok(updated_checkout_session);
