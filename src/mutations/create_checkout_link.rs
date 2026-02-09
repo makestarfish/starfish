@@ -1,5 +1,3 @@
-use uuid::Uuid;
-
 use crate::{
   context::RequestContext,
   entities::CheckoutLink,
@@ -7,6 +5,7 @@ use crate::{
   state::SharedState,
   utils::create_client_secret,
 };
+use uuid::Uuid;
 
 pub async fn resolve(
   state: &SharedState,
@@ -73,7 +72,7 @@ pub async fn resolve(
   let checkout_link = sqlx::query_as!(
     CheckoutLink,
     r#"
-      insert into checkout_links(store_id, client_secret, label, success_url)
+      insert into checkout_links (store_id, client_secret, label, success_url)
       values ($1, $2, $3, $4)
       returning
         id,

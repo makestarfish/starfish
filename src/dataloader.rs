@@ -1,8 +1,10 @@
 use crate::{
-  config::Config, entities::{
+  config::Config,
+  entities::{
     CheckoutSession, CheckoutSessionId, CheckoutSessionStatus, Customer,
     CustomerId, OrderId, OrderItem, Price, ProductId,
-  }, failure::Failure
+  },
+  failure::Failure,
 };
 use async_graphql::dataloader::Loader;
 use sqlx::{PgPool, types::Json};

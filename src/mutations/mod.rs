@@ -14,6 +14,7 @@ use uuid::Uuid;
 pub mod confirm_checkout_session;
 pub mod create_checkout_link;
 pub mod create_checkout_session;
+pub mod create_checkout_session_from_link;
 pub mod create_customer;
 pub mod create_product;
 pub mod create_store;
@@ -298,6 +299,19 @@ impl Mutation {
       products,
       customer_id,
       customer_email,
+    )
+    .await
+  }
+
+  #[graphql(name = "create_checkout_session_from_link")]
+  async fn create_checkout_session_from_link(
+    &self,
+    context: &Context<'_>,
+    #[graphql(name = "client_secret")] client_secret: String,
+  ) -> Result<CheckoutSession, Failure> {
+    create_checkout_session_from_link::resolve(
+      context.data_unchecked::<SharedState>(),
+      client_secret,
     )
     .await
   }
