@@ -101,7 +101,7 @@ pub async fn resolve(
 
   let mut tx = state.db.begin().await.map_err(|_| failure!())?;
 
-  let client_secret = create_client_secret("starfish_c_");
+  let client_secret = create_client_secret("starfish_cs_");
 
   let create_payment_intent_params =
     CreatePaymentIntentParams::new(product.price_amount, "usd");
