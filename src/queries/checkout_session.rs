@@ -26,7 +26,7 @@ pub async fn resolve(
         cs.customer_email,
         cs.client_secret,
         cs.status as "status: CheckoutSessionStatus",
-        rtrim($3, '/') || '/checkout' || cs.client_secret as "url!",
+        rtrim($3, '/') || '/checkout/' || cs.client_secret as "url!",
         cs.amount,
         cs.discount_amount,
         cs.tax_amount,

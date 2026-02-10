@@ -1,6 +1,6 @@
 use crate::{
   context::RequestContext,
-  dataloader::DataLoader as StarfishLoader,
+  dataloader::{PriceLoader, ProductLoader, StandardLoader},
   entities::{
     CheckoutLink, CheckoutLinkConnection, CheckoutSession,
     CheckoutSessionConnection, Customer, CustomerConnection, Order,
@@ -334,7 +334,7 @@ impl Store {
 impl Product {
   async fn prices(&self, context: &Context<'_>) -> Result<Vec<Price>, Failure> {
     context
-      .data_unchecked::<DataLoader<StarfishLoader>>()
+      .data_unchecked::<DataLoader<PriceLoader>>()
       .load_one(self.id.to_owned())
       .await
       .map(|prices| prices.unwrap())
@@ -342,10 +342,40 @@ impl Product {
 }
 
 #[ComplexObject]
+impl CheckoutSession {
+  async fn store(&self, context: &Context<'_>) -> Result<Store, Failure> {
+    context
+      .data_unchecked::<DataLoader<StandardLoader>>()
+      .load_one(self.store_id.to_owned())
+      .await
+      .map(|store| store.unwrap())
+  }
+
+  async fn product(&self, context: &Context<'_>) -> Result<Product, Failure> {
+    context
+      .data_unchecked::<DataLoader<StandardLoader>>()
+      .load_one(self.product_id.to_owned())
+      .await
+      .map(|store| store.unwrap())
+  }
+
+  async fn products(
+    &self,
+    context: &Context<'_>,
+  ) -> Result<Vec<Product>, Failure> {
+    context
+      .data_unchecked::<DataLoader<ProductLoader>>()
+      .load_one(self.id.to_owned())
+      .await
+      .map(|products| products.unwrap())
+  }
+}
+
+#[ComplexObject]
 impl Order {
   async fn customer(&self, context: &Context<'_>) -> Result<Customer, Failure> {
     context
-      .data_unchecked::<DataLoader<StarfishLoader>>()
+      .data_unchecked::<DataLoader<StandardLoader>>()
       .load_one(self.customer_id.to_owned())
       .await
       .map(|customer| customer.unwrap())
@@ -359,7 +389,7 @@ impl Order {
     match self.checkout_session_id.as_ref() {
       Some(checkout_session_id) => {
         context
-          .data_unchecked::<DataLoader<StarfishLoader>>()
+          .data_unchecked::<DataLoader<StandardLoader>>()
           .load_one(checkout_session_id.to_owned())
           .await
       }
@@ -372,7 +402,7 @@ impl Order {
     context: &Context<'_>,
   ) -> Result<Vec<OrderItem>, Failure> {
     context
-      .data_unchecked::<DataLoader<StarfishLoader>>()
+      .data_unchecked::<DataLoader<StandardLoader>>()
       .load_one(self.id.to_owned())
       .await
       .map(|items| items.unwrap())

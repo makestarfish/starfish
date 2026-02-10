@@ -53,7 +53,9 @@ pub struct RevokedSession {
   pub id: SessionId,
 }
 
-#[derive(NewType, sqlx::Type, Clone)]
+#[derive(
+  NewType, sqlx::Type, Clone, PartialEq, Eq, Hash, Debug, Deserialize,
+)]
 #[sqlx(transparent)]
 pub struct StoreId(pub Uuid);
 
@@ -155,7 +157,7 @@ pub struct CustomerConnection {
 #[sqlx(transparent)]
 pub struct ProductId(pub Uuid);
 
-#[derive(SimpleObject, FromRow, Clone)]
+#[derive(SimpleObject, FromRow, Clone, Deserialize, Debug)]
 #[graphql(rename_fields = "snake_case", complex)]
 pub struct Product {
   pub id: ProductId,
@@ -251,7 +253,7 @@ pub enum CheckoutSessionStatus {
 pub struct CheckoutSessionId(pub Uuid);
 
 #[derive(SimpleObject, Clone)]
-#[graphql(rename_fields = "snake_case")]
+#[graphql(rename_fields = "snake_case", complex)]
 pub struct CheckoutSession {
   pub id: CheckoutSessionId,
   pub store_id: StoreId,

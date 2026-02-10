@@ -2,8 +2,11 @@ use async_graphql::{EmptySubscription, Schema, dataloader::DataLoader};
 use async_graphql_axum::{GraphQLRequest, GraphQLResponse};
 use axum::{Router, extract::State, http::HeaderMap, routing::post};
 use starfish::{
-  context::RequestContext, dataloader::DataLoader as StarfishLoader,
-  mutations::Mutation, queries::Query, state::SharedState,
+  context::RequestContext,
+  dataloader::{PriceLoader, ProductLoader, StandardLoader},
+  mutations::Mutation,
+  queries::Query,
+  state::SharedState,
 };
 use tokio::net::TcpListener;
 
@@ -35,7 +38,15 @@ async fn main() {
   let schema = Schema::build(Query, Mutation, EmptySubscription)
     .data(state.clone())
     .data(DataLoader::new(
-      StarfishLoader::new(state.db.clone(), state.config.clone()),
+      StandardLoader::new(state.db.clone(), state.config.clone()),
+      tokio::spawn,
+    ))
+    .data(DataLoader::new(
+      PriceLoader::new(state.db.clone()),
+      tokio::spawn,
+    ))
+    .data(DataLoader::new(
+      ProductLoader::new(state.db.clone()),
       tokio::spawn,
     ))
     .finish();
