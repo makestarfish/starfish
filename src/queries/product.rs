@@ -10,7 +10,7 @@ pub async fn resolve(
   state: &SharedState,
   context: &RequestContext,
   id: Uuid,
-) -> Result<Option<Product>, Failure> {
+) -> Result<Product, Failure> {
   let user_id = context
     .user_id
     .ok_or_else(|| failure!(FailureReason::UNAUTHORIZED))?;
@@ -40,7 +40,13 @@ pub async fn resolve(
   )
   .fetch_optional(&state.db)
   .await
-  .map_err(|_| failure!())?;
+  .map_err(|_| failure!())?
+  .ok_or_else(|| {
+    failure!(
+      FailureReason::NOT_FOUND,
+      "The product '{id}' could not be found"
+    )
+  })?;
 
   Ok(product)
 }

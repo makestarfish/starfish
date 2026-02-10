@@ -104,7 +104,8 @@ pub async fn resolve(
   query_builder.push(" where id = ");
   query_builder.push_bind(store.id);
 
-  query_builder.push(" returning id, slug, name, email, website, avatar_url, created_at, modified_at");
+  query_builder
+    .push(" returning id, slug, name, email, website, avatar_url, created_at, modified_at");
 
   let updated_store = query_builder
     .build_query_as::<Store>()

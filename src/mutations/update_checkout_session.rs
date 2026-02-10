@@ -47,10 +47,16 @@ pub async fn resolve(
     &id,
     &user_id,
     &state.config.website_base_url,
-  ).fetch_optional(&state.db)
+  )
+  .fetch_optional(&state.db)
   .await
   .map_err(|_| failure!())?
-  .ok_or_else(|| failure!(FailureReason::NOT_FOUND, "The checkout session '{id}' could not be found"))?;
+  .ok_or_else(|| {
+    failure!(
+      FailureReason::NOT_FOUND,
+      "The checkout session '{id}' could not be found"
+    )
+  })?;
 
   if let Some(product_id) = product_id
     && checkout_session.product_id.0 != product_id
@@ -110,7 +116,10 @@ pub async fn resolve(
       &product_id,
       price.amount,
       &state.config.website_base_url,
-    ).fetch_one(&state.db).await.map_err(|_| failure!())?;
+    )
+    .fetch_one(&state.db)
+    .await
+    .map_err(|_| failure!())?;
 
     return Ok(updated_checkout_session);
   }

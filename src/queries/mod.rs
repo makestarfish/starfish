@@ -60,7 +60,7 @@ impl Query {
     &self,
     context: &Context<'_>,
     id: Uuid,
-  ) -> Result<Option<Session>, Failure> {
+  ) -> Result<Session, Failure> {
     session::resolve(
       context.data_unchecked::<SharedState>(),
       context.data_unchecked::<RequestContext>(),
@@ -100,7 +100,7 @@ impl Query {
     &self,
     context: &Context<'_>,
     id: Uuid,
-  ) -> Result<Option<Customer>, Failure> {
+  ) -> Result<Customer, Failure> {
     customer::resolve(
       context.data_unchecked::<SharedState>(),
       context.data_unchecked::<RequestContext>(),
@@ -113,7 +113,7 @@ impl Query {
     &self,
     context: &Context<'_>,
     id: Uuid,
-  ) -> Result<Option<Product>, Failure> {
+  ) -> Result<Product, Failure> {
     product::resolve(
       context.data_unchecked::<SharedState>(),
       context.data_unchecked::<RequestContext>(),
@@ -162,12 +162,11 @@ impl Query {
   async fn checkout_session(
     &self,
     context: &Context<'_>,
-    id: Uuid,
-  ) -> Result<Option<CheckoutSession>, Failure> {
+    client_secret: String,
+  ) -> Result<CheckoutSession, Failure> {
     checkout_session::resolve(
       context.data_unchecked::<SharedState>(),
-      context.data_unchecked::<RequestContext>(),
-      id,
+      client_secret,
     )
     .await
   }

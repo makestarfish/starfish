@@ -80,7 +80,8 @@ pub async fn resolve(
   query_builder.push(" where id = ");
   query_builder.push_bind(id);
 
-  query_builder.push(" returning id, store_id, name, description, archived, created_at, modified_at");
+  query_builder
+    .push(" returning id, store_id, name, description, archived, created_at, modified_at");
 
   let updated_product = query_builder
     .build_query_as::<Product>()

@@ -31,23 +31,23 @@ impl Loader<StoreId> for StandardLoader {
     keys: &[StoreId],
   ) -> Result<HashMap<StoreId, Self::Value>, Self::Error> {
     sqlx::query_as!(
-        Store,
-        r#"
+      Store,
+      r#"
           select id, slug, name, email, website, avatar_url, created_at, modified_at
           from stores
           where id = any($1)
         "#,
-        &keys.iter().map(|id| id.0).collect::<Vec<Uuid>>(),
-      )
-      .fetch_all(&self.db)
-      .await
-      .map(|stores| {
-        stores
-          .into_iter()
-          .map(|store| (store.id.to_owned(), store))
-          .collect()
-      })
-      .map_err(|_| failure!())
+      &keys.iter().map(|id| id.0).collect::<Vec<Uuid>>(),
+    )
+    .fetch_all(&self.db)
+    .await
+    .map(|stores| {
+      stores
+        .into_iter()
+        .map(|store| (store.id.to_owned(), store))
+        .collect()
+    })
+    .map_err(|_| failure!())
   }
 }
 
@@ -72,9 +72,9 @@ impl Loader<ProductId> for StandardLoader {
     .await
     .map(|products| {
       products
-          .into_iter()
-          .map(|product| (product.id.to_owned(), product))
-          .collect()
+        .into_iter()
+        .map(|product| (product.id.to_owned(), product))
+        .collect()
     })
     .map_err(|_| failure!())
   }
@@ -89,8 +89,8 @@ impl Loader<CheckoutSessionId> for StandardLoader {
     keys: &[CheckoutSessionId],
   ) -> Result<HashMap<CheckoutSessionId, Self::Value>, Self::Error> {
     sqlx::query_as!(
-        CheckoutSession,
-        r#"
+      CheckoutSession,
+      r#"
           select 
             id, 
             store_id, 
@@ -110,18 +110,18 @@ impl Loader<CheckoutSessionId> for StandardLoader {
           from checkout_sessions
           where id = any($1)
         "#,
-        &keys.iter().map(|id| id.0).collect::<Vec<Uuid>>(),
-        &self.config.website_base_url,
-      )
-      .fetch_all(&self.db)
-      .await
-      .map(|checkout_sessions| {
-        checkout_sessions
-          .into_iter()
-          .map(|checkout_session| (checkout_session.id.to_owned(), checkout_session))
-          .collect()
-      })
-      .map_err(|_| failure!())
+      &keys.iter().map(|id| id.0).collect::<Vec<Uuid>>(),
+      &self.config.website_base_url,
+    )
+    .fetch_all(&self.db)
+    .await
+    .map(|checkout_sessions| {
+      checkout_sessions
+        .into_iter()
+        .map(|checkout_session| (checkout_session.id.to_owned(), checkout_session))
+        .collect()
+    })
+    .map_err(|_| failure!())
   }
 }
 

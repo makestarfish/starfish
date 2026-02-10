@@ -1,5 +1,7 @@
 use crate::{
-  context::RequestContext, entities::Customer, failure::Failure,
+  context::RequestContext,
+  entities::Customer,
+  failure::{Failure, FailureReason},
   state::SharedState,
 };
 use uuid::Uuid;
@@ -8,7 +10,7 @@ pub async fn resolve(
   state: &SharedState,
   context: &RequestContext,
   id: Uuid,
-) -> Result<Option<Customer>, Failure> {
+) -> Result<Customer, Failure> {
   let user_id = context
     .user_id
     .ok_or_else(|| failure!(crate::failure::FailureReason::UNAUTHORIZED))?;
@@ -39,7 +41,13 @@ pub async fn resolve(
   )
   .fetch_optional(&state.db)
   .await
-  .map_err(|_| failure!())?;
+  .map_err(|_| failure!())?
+  .ok_or_else(|| {
+    failure!(
+      FailureReason::NOT_FOUND,
+      "The customer '{id}' could not be found"
+    )
+  })?;
 
   Ok(customer)
 }
