@@ -162,7 +162,7 @@ impl Query {
   async fn checkout_session(
     &self,
     context: &Context<'_>,
-    client_secret: String,
+    #[graphql(name = "client_secret")] client_secret: String,
   ) -> Result<CheckoutSession, Failure> {
     checkout_session::resolve(
       context.data_unchecked::<SharedState>(),
