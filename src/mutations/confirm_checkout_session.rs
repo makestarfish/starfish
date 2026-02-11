@@ -3,12 +3,14 @@ use crate::{
   failure::{Failure, FailureReason},
   state::SharedState,
 };
-use starfish_stripe::types::CreateCustomerParams;
+use starfish_stripe::types::{
+  ConfirmPaymentIntentParams, CreateCustomerParams,
+};
 
 pub async fn resolve(
   state: &SharedState,
   client_secret: String,
-  _confirmation_token_id: String,
+  confirmation_token_id: String,
   customer_email: Option<String>,
 ) -> Result<CheckoutSession, Failure> {
   let checkout_session = sqlx::query!(
@@ -18,7 +20,8 @@ pub async fn resolve(
         stripe_id,
         store_id,
         customer_id,
-        customer_email
+        customer_email,
+        success_url
       from checkout_sessions
       where client_secret = $1
     "#,
@@ -47,6 +50,17 @@ pub async fn resolve(
   let customer_email = checkout_session.customer_email
     .or(customer_email)
     .ok_or_else(|| failure!(FailureReason::UNPROCESSABLE_ENTITY, "The argument 'customer_email' is required since the checkout session is not associated with a customer"))?;
+
+  let confirm_payment_intent_params = ConfirmPaymentIntentParams::new()
+    .with_confirmation_token(&confirmation_token_id)
+    .with_return_url(&state.config.website_base_url);
+
+  state
+    .stripe
+    .payment_intents
+    .confirm(&checkout_session.stripe_id, confirm_payment_intent_params)
+    .await
+    .map_err(|_| failure!())?;
 
   let mut tx = state.db.begin().await.map_err(|_| failure!())?;
 
@@ -80,15 +94,21 @@ pub async fn resolve(
         .await
         .map_err(|_| failure!())?;
 
+      let avatar_url = format!(
+        "https://www.gravatar.com/avatar/{:x}?d=404",
+        md5::compute(customer_email.as_bytes())
+      );
+
       let created_customer = sqlx::query!(
         r#"
-          insert into customers (stripe_id, store_id, email)
-          values ($1, $2, $3)
+          insert into customers (stripe_id, store_id, email, avatar_url)
+          values ($1, $2, $3, $4)
           returning id
         "#,
         &stripe_customer.id,
         &checkout_session.store_id,
         &customer_email,
+        &avatar_url,
       )
       .fetch_one(&mut *tx)
       .await
@@ -116,6 +136,7 @@ pub async fn resolve(
         client_secret,
         status as "status: CheckoutSessionStatus",
         rtrim($4, '/') || '/checkout/' || client_secret as "url!",
+        success_url,
         amount,
         discount_amount,
         tax_amount,

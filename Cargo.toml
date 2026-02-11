@@ -13,7 +13,7 @@ tower-http = { version = "0.6.8", features = ["cors"] }
 serde = { version = "1.0.228", features = ["derive"] }
 sqlx = { version = "0.8.6", features = ["runtime-tokio", "macros", "postgres", "tls-rustls", "uuid", "chrono"] }
 resend-rs = { version = "0.21.0", features = ["rustls-tls"], default-features = false }
-starfish-stripe = { version = "0.1.6", features = ["rustls-tls"], default-features = false }
+starfish-stripe = { version = "0.1.8", features = ["rustls-tls"], default-features = false }
 uuid = { version = "1.19.0", features = ["v7"] }
 envy = "0.4.2"
 jsonwebtoken = { version = "10.2.0", features = ["aws_lc_rs"] }

@@ -268,6 +268,7 @@ pub struct CheckoutSession {
   pub total_amount: i64,
   pub status: CheckoutSessionStatus,
   pub url: String,
+  pub success_url: Option<String>,
   pub created_at: DateTime<Utc>,
   pub modified_at: Option<DateTime<Utc>>,
 }

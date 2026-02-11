@@ -135,6 +135,7 @@ pub async fn resolve(
         client_secret,
         status as "status: CheckoutSessionStatus",
         rtrim($8, '/') || '/checkout/' || client_secret as "url!",
+        success_url,
         amount,
         discount_amount,
         tax_amount,

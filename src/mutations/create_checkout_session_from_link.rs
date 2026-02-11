@@ -23,6 +23,7 @@ pub async fn resolve(
     r#"
       select 
         cl.store_id,
+        cl.success_url,
         jsonb_agg(
           jsonb_build_object(
             'id', p.product_id,
@@ -33,7 +34,7 @@ pub async fn resolve(
       join checkout_link_products clp on clp.checkout_link_id = cl.id
       join prices p on p.product_id = clp.product_id
       where cl.client_secret = $1
-      group by cl.store_id
+      group by cl.store_id, cl.success_url
     "#,
     &client_secret,
   )
@@ -94,6 +95,7 @@ pub async fn resolve(
         client_secret,
         status as "status: CheckoutSessionStatus",
         rtrim($5, '/') || '/checkout/' || client_secret as "url!",
+        success_url,
         amount,
         discount_amount,
         tax_amount,
