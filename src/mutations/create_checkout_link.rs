@@ -80,7 +80,7 @@ pub async fn resolve(
         client_secret,
         label,
         success_url,
-        rtrim($5, '/') || '/' || client_secret as "url!",
+        rtrim($5, '/') || '/links' || client_secret as "url!",
         created_at,
         modified_at
     "#,

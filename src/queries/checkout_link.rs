@@ -24,7 +24,7 @@ pub async fn resolve(
         cl.client_secret, 
         cl.label, 
         cl.success_url, 
-        rtrim($3, '/') || '/' || cl.client_secret as "url!",
+        rtrim($3, '/') || '/links' || cl.client_secret as "url!",
         cl.created_at, 
         cl.modified_at
       from checkout_links cl
