@@ -9,6 +9,7 @@ use starfish::{
   state::SharedState,
 };
 use tokio::net::TcpListener;
+use tower_http::cors::CorsLayer;
 
 async fn graphql(
   State(schema): State<Schema<Query, Mutation, EmptySubscription>>,
@@ -51,7 +52,10 @@ async fn main() {
     ))
     .finish();
 
-  let router = Router::new().route("/", post(graphql)).with_state(schema);
+  let router = Router::new()
+    .route("/", post(graphql))
+    .with_state(schema)
+    .layer(CorsLayer::very_permissive());
 
   axum::serve(listener, router).await.unwrap()
 }

@@ -1,9 +1,9 @@
 use base64::Engine;
-use rand::{TryRngCore, rngs::OsRng};
+use rand::{TryRng, rngs::SysRng};
 
 pub fn execute(prefix: &str) -> String {
   let mut bytes = [0u8; 32];
-  OsRng.try_fill_bytes(&mut bytes).unwrap();
+  SysRng.try_fill_bytes(&mut bytes).unwrap();
 
   format!(
     "{}{}",

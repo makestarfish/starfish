@@ -1,4 +1,4 @@
-use rand::Rng;
+use rand::RngExt;
 use std::iter::repeat_with;
 
 const CHARSET: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
