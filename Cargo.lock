@@ -2174,9 +2174,9 @@ checksum = "7a2d987857b319362043e95f5353c0535c1f58eec5336fdfcf626430af7def58"
 
 [[package]]
 name = "reqwest"
-version = "0.13.1"
+version = "0.13.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "04e9018c9d814e5f30cc16a0f03271aeab3571e609612d9fe78c1aa8d11c2f62"
+checksum = "ab3f43e3283ab1488b624b44b0e988d0acea0b3214e694730a055cb6b2efa801"
 dependencies = [
  "base64",
  "bytes",
@@ -2310,9 +2310,9 @@ dependencies = [
 
 [[package]]
 name = "rustls-pki-types"
-version = "1.13.2"
+version = "1.14.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "21e6f2ab2928ca4291b86736a8bd920a277a399bba1589409d72154ff87c1282"
+checksum = "be040f8b0a225e40375822a563fa9524378b9d63112f53e19ffff34df5d33fdd"
 dependencies = [
  "web-time",
  "zeroize",
@@ -2832,12 +2832,16 @@ dependencies = [
 
 [[package]]
 name = "starfish-stripe"
-version = "0.1.8"
+version = "0.1.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ab035d440e58dcba40606ec82e77864b434236fab7583bfb6c3df6a9e92fb315"
+checksum = "107f00f9bd70b559d56a768272ba58e5afb62b1618ef445de7f9f30299f6ed0f"
 dependencies = [
+ "hex",
+ "hmac",
  "reqwest",
  "serde",
+ "serde_json",
+ "sha2",
  "thiserror 2.0.18",
 ]
 

@@ -6,6 +6,7 @@ use starfish::{
   dataloader::{PriceLoader, ProductLoader, StandardLoader},
   mutations::Mutation,
   queries::Query,
+  routes::stripe_webhook_handler,
   state::SharedState,
 };
 use tokio::net::TcpListener;
@@ -55,6 +56,8 @@ async fn main() {
   let router = Router::new()
     .route("/", post(graphql))
     .with_state(schema)
+    .route("/webhooks/stripe", post(stripe_webhook_handler::handle))
+    .with_state(state.clone())
     .layer(CorsLayer::very_permissive());
 
   axum::serve(listener, router).await.unwrap()

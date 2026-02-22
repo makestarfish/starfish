@@ -236,7 +236,7 @@ pub struct StoreInviteConnection {
   pub nodes: Vec<StoreInvite>,
 }
 
-#[derive(Enum, sqlx::Type, Clone, Copy, PartialEq, Eq)]
+#[derive(Enum, sqlx::Type, Clone, Debug, Copy, PartialEq, Eq)]
 #[sqlx(rename_all = "snake_case")]
 pub enum CheckoutSessionStatus {
   Open,

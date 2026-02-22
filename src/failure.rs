@@ -1,10 +1,12 @@
 use async_graphql::ErrorExtensions;
+use axum::{Json, response::IntoResponse};
+use serde::Serialize;
 
 macro_rules! failure_reasons {
   (
     $(
       $(#[$docs:meta])*
-      ($status:expr, $id:ident, $phrase:expr),
+      ($id:ident, $phrase:expr),
     )+
   ) => {
     #[derive(Clone)]
@@ -32,33 +34,46 @@ macro_rules! failure_reasons {
           )+
         }
       }
+
+      pub fn as_status_code(&self) -> axum::http::StatusCode {
+        match self {
+          $(
+            FailureReason::$id => axum::http::StatusCode::$id,
+          )+
+        }
+      }
     }
   }
 }
 
 failure_reasons! {
   /// 500 INTERNAL_SERVER_ERROR
-  (500, INTERNAL_SERVER_ERROR, "Distortion in spacetime detected: internal server error"),
+  (INTERNAL_SERVER_ERROR, "Distortion in spacetime detected: internal server error"),
 
   /// 401 UNAUTHORIZED
-  (401, UNAUTHORIZED, "Requires authentication"),
+  (UNAUTHORIZED, "Requires authentication"),
 
   /// 403 FORBIDDEN
-  (403, FORBIDDEN, "Permission denied"),
+  (FORBIDDEN, "Permission denied"),
 
   /// 404 NOT_FOUND
-  (404, NOT_FOUND, "Resource not found"),
+  (NOT_FOUND, "Resource not found"),
 
   /// 409 CONFLICT
-  (409, CONFLICT, "The request conflicts with an existing resource"),
+  (CONFLICT, "The request conflicts with an existing resource"),
 
   // 422 UNPROCESSABLE ENTITY
-  (422, UNPROCESSABLE_ENTITY, "The request is valid but cannot be processed in the current state"),
+  (UNPROCESSABLE_ENTITY, "The request is valid but cannot be processed in the current state"),
 }
 
 #[derive(Clone)]
 pub struct Failure {
   pub reason: FailureReason,
+  pub message: String,
+}
+
+#[derive(Serialize)]
+pub struct FailureResponse {
   pub message: String,
 }
 
@@ -82,6 +97,18 @@ impl From<Failure> for async_graphql::Error {
   fn from(value: Failure) -> Self {
     Self::new(value.message)
       .extend_with(|_, e| e.set("code", value.reason.as_str()))
+  }
+}
+
+impl IntoResponse for Failure {
+  fn into_response(self) -> axum::response::Response {
+    (
+      self.reason.as_status_code(),
+      Json(FailureResponse {
+        message: self.message,
+      }),
+    )
+      .into_response()
   }
 }
 

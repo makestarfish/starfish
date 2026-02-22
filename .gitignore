@@ -3,3 +3,6 @@ target
 
 # environment variable files
 .env
+
+# terraform
+infra/.terraform
