@@ -1,6 +1,6 @@
 use crate::{
   context::RequestContext,
-  entities::Store,
+  entities::{Store, StoreStatus},
   failure::{Failure, FailureReason},
   state::SharedState,
 };
@@ -50,6 +50,7 @@ pub async fn resolve(
         id, 
         slug, 
         name, 
+        status as "status: StoreStatus",
         email, 
         website, 
         avatar_url, 

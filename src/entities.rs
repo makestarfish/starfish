@@ -59,12 +59,22 @@ pub struct RevokedSession {
 #[sqlx(transparent)]
 pub struct StoreId(pub Uuid);
 
+#[derive(Enum, sqlx::Type, Clone, Debug, Copy, PartialEq, Eq)]
+#[sqlx(rename_all = "snake_case")]
+pub enum StoreStatus {
+  Created,
+  OnboardingStarted,
+  Denied,
+  Active,
+}
+
 #[derive(SimpleObject, FromRow, Clone)]
 #[graphql(rename_fields = "snake_case", complex)]
 pub struct Store {
   pub id: StoreId,
   pub slug: String,
   pub name: String,
+  pub status: StoreStatus,
   pub email: Option<String>,
   pub website: Option<String>,
   pub avatar_url: Option<String>,
@@ -84,6 +94,19 @@ pub struct StoreEdge {
 pub struct StoreConnection {
   pub edges: Vec<StoreEdge>,
   pub nodes: Vec<Store>,
+}
+
+#[derive(
+  NewType, sqlx::Type, Clone, PartialEq, Eq, Hash, Debug, Deserialize,
+)]
+#[sqlx(transparent)]
+pub struct AccountId(pub Uuid);
+
+#[derive(SimpleObject)]
+#[graphql(rename_fields = "snake_case")]
+pub struct Account {
+  pub id: AccountId,
+  pub stripe_id: String,
 }
 
 #[derive(NewType, Clone)]

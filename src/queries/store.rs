@@ -1,4 +1,8 @@
-use crate::{entities::Store, failure::Failure, state::SharedState};
+use crate::{
+  entities::{Store, StoreStatus},
+  failure::Failure,
+  state::SharedState,
+};
 
 pub async fn resolve(
   state: &SharedState,
@@ -7,7 +11,16 @@ pub async fn resolve(
   sqlx::query_as!(
     Store,
     r#"
-      select id, slug, name, email, website, avatar_url, created_at, modified_at
+      select 
+        id, 
+        slug, 
+        name, 
+        status as "status: StoreStatus",
+        email, 
+        website, 
+        avatar_url, 
+        created_at, 
+        modified_at
       from stores
       where slug = $1
     "#,

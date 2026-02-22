@@ -3,6 +3,7 @@ use crate::{
   entities::{
     CheckoutSession, CheckoutSessionId, CheckoutSessionStatus, Customer,
     CustomerId, OrderId, OrderItem, Price, Product, ProductId, Store, StoreId,
+    StoreStatus,
   },
   failure::Failure,
 };
@@ -33,7 +34,16 @@ impl Loader<StoreId> for StandardLoader {
     sqlx::query_as!(
       Store,
       r#"
-          select id, slug, name, email, website, avatar_url, created_at, modified_at
+          select 
+            id, 
+            slug, 
+            name, 
+            status as "status: StoreStatus",
+            email, 
+            website, 
+            avatar_url, 
+            created_at, 
+            modified_at
           from stores
           where id = any($1)
         "#,

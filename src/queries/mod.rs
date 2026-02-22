@@ -2,7 +2,7 @@ use crate::{
   context::RequestContext,
   dataloader::{PriceLoader, ProductLoader, StandardLoader},
   entities::{
-    CheckoutLink, CheckoutLinkConnection, CheckoutSession,
+    Account, CheckoutLink, CheckoutLinkConnection, CheckoutSession,
     CheckoutSessionConnection, Customer, CustomerConnection, Order,
     OrderConnection, OrderItem, Price, Product, ProductConnection, Session,
     Store, StoreConnection, StoreInvite, StoreInviteConnection,
@@ -14,6 +14,7 @@ use crate::{
 use async_graphql::{ComplexObject, Context, Object, dataloader::DataLoader};
 use uuid::Uuid;
 
+pub mod account;
 pub mod checkout_link;
 pub mod checkout_links;
 pub mod checkout_session;
@@ -244,6 +245,15 @@ impl Query {
 
 #[ComplexObject]
 impl Store {
+  async fn account(&self, context: &Context<'_>) -> Result<Account, Failure> {
+    account::resolve(
+      context.data_unchecked::<SharedState>(),
+      context.data_unchecked::<RequestContext>(),
+      self.id.0,
+    )
+    .await
+  }
+
   async fn members(
     &self,
     context: &Context<'_>,

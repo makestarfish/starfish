@@ -1,6 +1,6 @@
 use crate::{
   context::RequestContext,
-  entities::{Store, StoreId},
+  entities::{Store, StoreId, StoreStatus},
   failure::{Failure, FailureReason},
   state::SharedState,
 };
@@ -26,6 +26,7 @@ pub async fn resolve(
         id,
         slug,
         name,
+        status as "status: StoreStatus",
         email,
         website,
         avatar_url,
@@ -68,6 +69,7 @@ pub async fn resolve(
       id: StoreId(store.id),
       slug: store.slug,
       name: store.name,
+      status: store.status,
       email: store.email,
       website: store.website,
       avatar_url: store.avatar_url,
@@ -105,7 +107,7 @@ pub async fn resolve(
   query_builder.push_bind(store.id);
 
   query_builder
-    .push(" returning id, slug, name, email, website, avatar_url, created_at, modified_at");
+    .push(" returning id, slug, name, status, email, website, avatar_url, created_at, modified_at");
 
   let updated_store = query_builder
     .build_query_as::<Store>()
