@@ -2,11 +2,11 @@ use crate::{
   context::RequestContext,
   dataloader::{PriceLoader, ProductLoader, StandardLoader},
   entities::{
-    Account, CheckoutLink, CheckoutLinkConnection, CheckoutSession,
+    Account, Balance, CheckoutLink, CheckoutLinkConnection, CheckoutSession,
     CheckoutSessionConnection, Customer, CustomerConnection, Order,
     OrderConnection, OrderItem, Price, Product, ProductConnection, Session,
     Store, StoreConnection, StoreInvite, StoreInviteConnection,
-    StoreMemberConnection, User,
+    StoreMemberConnection, Transaction, TransactionConnection, User,
   },
   failure::Failure,
   state::SharedState,
@@ -15,6 +15,7 @@ use async_graphql::{ComplexObject, Context, Object, dataloader::DataLoader};
 use uuid::Uuid;
 
 pub mod account;
+pub mod balance;
 pub mod checkout_link;
 pub mod checkout_links;
 pub mod checkout_session;
@@ -32,6 +33,8 @@ pub mod store_invites;
 pub mod store_members;
 pub mod store_products;
 pub mod stores;
+mod transaction;
+mod transactions;
 pub mod viewer;
 
 pub struct Query;
@@ -238,6 +241,53 @@ impl Query {
       context.data_unchecked::<SharedState>(),
       context.data_unchecked::<RequestContext>(),
       id,
+    )
+    .await
+  }
+
+  async fn transactions(
+    &self,
+    context: &Context<'_>,
+    #[graphql(name = "account_id")] account_id: Uuid,
+    first: Option<i64>,
+    after: Option<Uuid>,
+    last: Option<i64>,
+    before: Option<Uuid>,
+  ) -> Result<TransactionConnection, Failure> {
+    transactions::resolve(
+      context.data_unchecked::<SharedState>(),
+      context.data_unchecked::<RequestContext>(),
+      account_id,
+      first,
+      after,
+      last,
+      before,
+    )
+    .await
+  }
+
+  async fn transaction(
+    &self,
+    context: &Context<'_>,
+    id: Uuid,
+  ) -> Result<Transaction, Failure> {
+    transaction::resolve(
+      context.data_unchecked::<SharedState>(),
+      context.data_unchecked::<RequestContext>(),
+      id,
+    )
+    .await
+  }
+
+  async fn balance(
+    &self,
+    context: &Context<'_>,
+    #[graphql(name = "account_id")] account_id: Uuid,
+  ) -> Result<Balance, Failure> {
+    balance::resolve(
+      context.data_unchecked::<SharedState>(),
+      context.data_unchecked::<RequestContext>(),
+      account_id,
     )
     .await
   }

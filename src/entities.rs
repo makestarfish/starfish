@@ -420,3 +420,37 @@ pub struct OrderItem {
   pub created_at: DateTime<Utc>,
   pub modified_at: Option<DateTime<Utc>>,
 }
+
+#[derive(NewType, sqlx::Type, Clone)]
+#[sqlx(transparent)]
+pub struct TransactionId(pub Uuid);
+
+#[derive(SimpleObject, Clone)]
+pub struct Transaction {
+  pub id: TransactionId,
+  pub account_id: AccountId,
+  pub amount: i64,
+  pub fee_amount: i64,
+  pub net_amount: i64,
+  pub created_at: DateTime<Utc>,
+}
+
+#[derive(SimpleObject)]
+#[graphql(rename_fields = "snake_case")]
+pub struct TransactionEdge {
+  pub cursor: TransactionId,
+  pub node: Transaction,
+}
+
+#[derive(SimpleObject)]
+#[graphql(rename_fields = "snake_case")]
+pub struct TransactionConnection {
+  pub edges: Vec<TransactionEdge>,
+  pub nodes: Vec<Transaction>,
+}
+
+#[derive(SimpleObject)]
+#[graphql(rename_fields = "snake_case")]
+pub struct Balance {
+  pub amount: i64,
+}
