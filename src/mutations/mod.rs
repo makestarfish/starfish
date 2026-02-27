@@ -2,8 +2,8 @@ use crate::{
   context::RequestContext,
   entities::{
     CheckoutLink, CheckoutSession, CreateProductPrice, Customer,
-    DeletedCheckoutLink, DeletedCustomer, OneTimeToken, Product,
-    RevokedSession, Store, StoreInvite, Tokens,
+    DeletedCheckoutLink, DeletedCustomer, OnboardingLink, OneTimeToken,
+    Product, RevokedSession, Store, StoreInvite, Tokens,
   },
   failure::Failure,
   state::SharedState,
@@ -16,6 +16,7 @@ pub mod create_checkout_link;
 pub mod create_checkout_session;
 pub mod create_checkout_session_from_link;
 pub mod create_customer;
+pub mod create_onboarding_link;
 pub mod create_product;
 pub mod create_store;
 pub mod create_store_invite;
@@ -163,11 +164,25 @@ impl Mutation {
     .await
   }
 
+  #[graphql(name = "create_onboarding_link")]
+  async fn create_onboarding_link(
+    &self,
+    context: &Context<'_>,
+    #[graphql(name = "account_id")] account_id: Uuid,
+  ) -> Result<OnboardingLink, Failure> {
+    create_onboarding_link::resolve(
+      context.data_unchecked::<SharedState>(),
+      context.data_unchecked::<RequestContext>(),
+      account_id,
+    )
+    .await
+  }
+
   #[graphql(name = "create_store_invite")]
   async fn create_store_invite(
     &self,
     context: &Context<'_>,
-    store_id: Uuid,
+    #[graphql(name = "store_id")] store_id: Uuid,
     email: String,
   ) -> Result<StoreInvite, Failure> {
     create_store_invite::resolve(

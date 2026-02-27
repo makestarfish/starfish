@@ -109,6 +109,14 @@ pub struct Account {
   pub stripe_id: String,
 }
 
+#[derive(SimpleObject)]
+#[graphql(rename_fields = "snake_case")]
+pub struct OnboardingLink {
+  pub url: String,
+  pub expires_at: DateTime<Utc>,
+  pub created_at: DateTime<Utc>,
+}
+
 #[derive(NewType, Clone)]
 pub struct StoreMemberId(Uuid);
 
