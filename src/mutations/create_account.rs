@@ -36,7 +36,7 @@ pub async fn resolve(
   )
   .fetch_optional(&state.db)
   .await
-  .map_err(|_| { println!("here"); failure!() })?
+  .map_err(|_| failure!())?
   .ok_or_else(|| {
     failure!(
       FailureReason::NOT_FOUND,
@@ -69,7 +69,7 @@ pub async fn resolve(
     .accounts
     .create(create_account_params)
     .await
-    .map_err(|err| { println!("{err:?}"); failure!()})?;
+    .map_err(|_| failure!())?;
 
   let mut tx = state.db.begin().await.map_err(|_| failure!())?;
 

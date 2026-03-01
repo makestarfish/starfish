@@ -295,7 +295,10 @@ impl Query {
 
 #[ComplexObject]
 impl Store {
-  async fn account(&self, context: &Context<'_>) -> Result<Option<Account>, Failure> {
+  async fn account(
+    &self,
+    context: &Context<'_>,
+  ) -> Result<Option<Account>, Failure> {
     account::resolve(
       context.data_unchecked::<SharedState>(),
       context.data_unchecked::<RequestContext>(),
