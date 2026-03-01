@@ -1,9 +1,9 @@
 use crate::{
   config::Config,
   entities::{
-    CheckoutSession, CheckoutSessionId, CheckoutSessionStatus, Customer,
-    CustomerId, OrderId, OrderItem, Price, Product, ProductId, Store, StoreId,
-    StoreStatus,
+    BillingReason, CheckoutSession, CheckoutSessionId, CheckoutSessionStatus,
+    Customer, CustomerId, Order, OrderId, OrderItem, OrderStatus, Price,
+    Product, ProductId, Store, StoreId, StoreStatus,
   },
   failure::Failure,
 };
@@ -166,46 +166,42 @@ impl Loader<CustomerId> for StandardLoader {
 }
 
 impl Loader<OrderId> for StandardLoader {
-  type Value = Vec<OrderItem>;
+  type Value = Order;
   type Error = Failure;
 
   async fn load(
     &self,
     keys: &[OrderId],
   ) -> Result<HashMap<OrderId, Self::Value>, Self::Error> {
-    sqlx::query!(
+    sqlx::query_as!(
+      Order,
       r#"
-        select
-          order_id,
-          jsonb_agg(
-            jsonb_build_object(
-              'id', id,
-              'order_id', order_id,
-              'product_price_id', product_price_id,
-              'label', label,
-              'amount', amount,
-              'tax_amount', tax_amount,
-              'created_at', created_at,
-              'modified_at', modified_at
-            )
-          ) as "items: Json<Vec<OrderItem>>"
-        from order_items
-        where order_id = any($1)
-        group by order_id
+        select 
+          id,
+          store_id,
+          customer_id,
+          checkout_session_id as "checkout_session_id: CheckoutSessionId",
+          status as "status: OrderStatus",
+          subtotal_amount,
+          discount_amount,
+          (subtotal_amount - discount_amount) as "net_amount!",
+          tax_amount,
+          (subtotal_amount - discount_amount + tax_amount) as "total_amount!",
+          platform_fee_amount,
+          billing_reason as "billing_reason: BillingReason",
+          created_at,
+          modified_at
+        from orders
+        where id = any($1)
       "#,
       &keys.iter().map(|id| id.0).collect::<Vec<Uuid>>()
     )
     .fetch_all(&self.db)
     .await
-    .map(|groups| {
-      groups
+    .map(|orders| {
+      orders
         .into_iter()
-        .map(|group| {
-          (
-            OrderId(group.order_id),
-            group.items.map(|item| item.0).unwrap_or_default(),
-          )
-        })
+        .map(|order| (order.id.to_owned(), order))
         .collect()
     })
     .map_err(|_| failure!())
@@ -319,6 +315,63 @@ impl Loader<CheckoutSessionId> for ProductLoader {
               .products
               .map(|products| products.0)
               .unwrap_or_default(),
+          )
+        })
+        .collect()
+    })
+    .map_err(|_| failure!())
+  }
+}
+
+pub struct OrderItemLoader {
+  db: PgPool,
+}
+
+impl OrderItemLoader {
+  pub fn new(db: PgPool) -> Self {
+    Self { db }
+  }
+}
+
+impl Loader<OrderId> for OrderItemLoader {
+  type Value = Vec<OrderItem>;
+  type Error = Failure;
+
+  async fn load(
+    &self,
+    keys: &[OrderId],
+  ) -> Result<HashMap<OrderId, Self::Value>, Self::Error> {
+    sqlx::query!(
+      r#"
+        select
+          order_id,
+          jsonb_agg(
+            jsonb_build_object(
+              'id', id,
+              'order_id', order_id,
+              'product_price_id', product_price_id,
+              'label', label,
+              'amount', amount,
+              'tax_amount', tax_amount,
+              'created_at', created_at,
+              'modified_at', modified_at
+            )
+          ) as "items: Json<Vec<OrderItem>>"
+        from order_items
+        where order_id = any($1)
+        group by order_id
+      "#,
+      &keys.iter().map(|id| id.0).collect::<Vec<Uuid>>()
+    )
+    .fetch_all(&self.db)
+    .await
+    .map(|groups| {
+      groups
+        .into_iter()
+        .map(|group| {
+          (
+            OrderId(group.order_id),
+            group.items.map(|item| item.0).unwrap_or_default(),
           )
         })
         .collect()

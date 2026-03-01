@@ -20,11 +20,13 @@ pub async fn resolve(
     r#"
       select 
         t.id, 
-        t.account_id, 
+        t.account_id,
+        t.order_id, 
         t.amount, 
-        t.fee_amount, 
-        (t.amount - t.fee_amount) as "net_amount!", 
-        t.created_at
+        t.incurred_amount, 
+        (t.amount - t.incurred_amount) as "net_amount!",
+        t.created_at,
+        t.modified_at
       from transactions t
       join accounts a on t.account_id = a.id
       where 

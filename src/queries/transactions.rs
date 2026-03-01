@@ -53,10 +53,12 @@ pub async fn resolve(
       select 
         id, 
         account_id,
+        order_id,
         amount, 
-        fee_amount,
-        (amount - fee_amount) as "net_amount!",
-        created_at
+        incurred_amount,
+        (amount - incurred_amount) as "net_amount!",
+        created_at,
+        modified_at
       from transactions
       where 
         account_id = $1 and

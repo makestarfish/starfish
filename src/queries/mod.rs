@@ -1,6 +1,6 @@
 use crate::{
   context::RequestContext,
-  dataloader::{PriceLoader, ProductLoader, StandardLoader},
+  dataloader::{OrderItemLoader, PriceLoader, ProductLoader, StandardLoader},
   entities::{
     Account, Balance, CheckoutLink, CheckoutLinkConnection, CheckoutSession,
     CheckoutSessionConnection, Customer, CustomerConnection, Order,
@@ -464,9 +464,20 @@ impl Order {
     context: &Context<'_>,
   ) -> Result<Vec<OrderItem>, Failure> {
     context
-      .data_unchecked::<DataLoader<StandardLoader>>()
+      .data_unchecked::<DataLoader<OrderItemLoader>>()
       .load_one(self.id.to_owned())
       .await
       .map(|items| items.unwrap())
+  }
+}
+
+#[ComplexObject]
+impl Transaction {
+  async fn order(&self, context: &Context<'_>) -> Result<Order, Failure> {
+    context
+      .data_unchecked::<DataLoader<StandardLoader>>()
+      .load_one(self.order_id.to_owned())
+      .await
+      .map(|order| order.unwrap())
   }
 }

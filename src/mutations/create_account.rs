@@ -1,6 +1,6 @@
 use crate::{
   context::RequestContext,
-  entities::{Account, StoreStatus, AccountStatus},
+  entities::{Account, AccountStatus, StoreStatus},
   failure::{Failure, FailureReason},
   state::SharedState,
 };

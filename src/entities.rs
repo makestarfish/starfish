@@ -107,7 +107,7 @@ pub struct AccountId(pub Uuid);
 pub enum AccountStatus {
   OnboardingStarted,
   Denied,
-  Active
+  Active,
 }
 
 #[derive(SimpleObject)]
@@ -443,13 +443,16 @@ pub struct OrderItem {
 pub struct TransactionId(pub Uuid);
 
 #[derive(SimpleObject, Clone)]
+#[graphql(rename_fields = "snake_case", complex)]
 pub struct Transaction {
   pub id: TransactionId,
   pub account_id: AccountId,
+  pub order_id: OrderId,
   pub amount: i64,
-  pub fee_amount: i64,
+  pub incurred_amount: i64,
   pub net_amount: i64,
   pub created_at: DateTime<Utc>,
+  pub modified_at: Option<DateTime<Utc>>,
 }
 
 #[derive(SimpleObject)]
