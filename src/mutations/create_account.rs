@@ -99,6 +99,17 @@ pub async fn resolve(
   .await
   .map_err(|_| failure!())?;
 
+  sqlx::query!(
+    r#"
+      insert into balances (account_id)
+      values ($1)
+    "#,
+    &account.id.0
+  )
+  .execute(&mut *tx)
+  .await
+  .map_err(|_| failure!())?;
+
   tx.commit().await.map_err(|_| failure!())?;
 
   Ok(account)
