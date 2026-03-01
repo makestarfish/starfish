@@ -1,7 +1,7 @@
 use crate::{
   context::RequestContext,
   entities::{
-    CheckoutLink, CheckoutSession, CreateProductPrice, Customer,
+    Account, CheckoutLink, CheckoutSession, CreateProductPrice, Customer,
     DeletedCheckoutLink, DeletedCustomer, OnboardingLink, OneTimeToken,
     Product, RevokedSession, Store, StoreInvite, Tokens,
   },
@@ -12,6 +12,7 @@ use async_graphql::{Context, MaybeUndefined, Object};
 use uuid::Uuid;
 
 pub mod confirm_checkout_session;
+pub mod create_account;
 pub mod create_checkout_link;
 pub mod create_checkout_session;
 pub mod create_checkout_session_from_link;
@@ -160,6 +161,20 @@ impl Mutation {
       email,
       website,
       avatar_url,
+    )
+    .await
+  }
+
+  #[graphql(name = "create_account")]
+  async fn create_account(
+    &self,
+    context: &Context<'_>,
+    #[graphql(name = "store_id")] store_id: Uuid,
+  ) -> Result<Account, Failure> {
+    create_account::resolve(
+      context.data_unchecked::<SharedState>(),
+      context.data_unchecked::<RequestContext>(),
+      store_id,
     )
     .await
   }

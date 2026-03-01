@@ -2477,6 +2477,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "serde_qs"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ac22439301a0b6f45a037681518e3169e8db1db76080e2e9600a08d1027df037"
+dependencies = [
+ "itoa",
+ "percent-encoding",
+ "ryu",
+ "serde",
+]
+
+[[package]]
 name = "serde_urlencoded"
 version = "0.7.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2832,15 +2844,16 @@ dependencies = [
 
 [[package]]
 name = "starfish-stripe"
-version = "0.1.12"
+version = "0.1.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "78d0bf1a01a3db94174c77299aee092fc5e38260ce84831d39fab1a06bb20871"
+checksum = "6ae797497f52cb2159211cb9ccdb14b46ff30deb10c4fc4bb29a403fc2d42f3d"
 dependencies = [
  "hex",
  "hmac",
  "reqwest",
  "serde",
  "serde_json",
+ "serde_qs",
  "sha2",
  "thiserror 2.0.18",
 ]
