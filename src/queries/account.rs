@@ -1,6 +1,6 @@
 use crate::{
   context::RequestContext,
-  entities::Account,
+  entities::{Account, AccountStatus},
   failure::{Failure, FailureReason},
   state::SharedState,
 };
@@ -18,7 +18,7 @@ pub async fn resolve(
   let account = sqlx::query_as!(
     Account,
     r#"
-      select a.id, a.stripe_id
+      select a.id, a.stripe_id, a.status as "status: AccountStatus"
       from accounts a
       where 
         a.store_id = $1 and

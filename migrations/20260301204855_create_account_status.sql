@@ -1,0 +1,1 @@
+create type account_status as enum ('onboarding_started', 'active', 'denied')

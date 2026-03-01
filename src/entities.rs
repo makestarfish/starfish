@@ -102,11 +102,20 @@ pub struct StoreConnection {
 #[sqlx(transparent)]
 pub struct AccountId(pub Uuid);
 
+#[derive(Enum, sqlx::Type, Clone, Debug, Copy, PartialEq, Eq)]
+#[sqlx(rename_all = "snake_case")]
+pub enum AccountStatus {
+  OnboardingStarted,
+  Denied,
+  Active
+}
+
 #[derive(SimpleObject)]
 #[graphql(rename_fields = "snake_case")]
 pub struct Account {
   pub id: AccountId,
   pub stripe_id: String,
+  pub status: AccountStatus,
 }
 
 #[derive(SimpleObject)]

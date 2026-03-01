@@ -1,6 +1,6 @@
 use crate::{
   context::RequestContext,
-  entities::{Account, StoreStatus},
+  entities::{Account, StoreStatus, AccountStatus},
   failure::{Failure, FailureReason},
   state::SharedState,
 };
@@ -90,7 +90,7 @@ pub async fn resolve(
     r#"
       insert into accounts (store_id, stripe_id)
       values ($1, $2)
-      returning id, stripe_id
+      returning id, stripe_id, status as "status: AccountStatus"
     "#,
     &store_id,
     &stripe_account.id
