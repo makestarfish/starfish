@@ -3,7 +3,8 @@ use crate::{
   entities::{
     BillingReason, CheckoutSession, CheckoutSessionId, CheckoutSessionStatus,
     Customer, CustomerId, Order, OrderId, OrderItem, OrderStatus, Price,
-    Product, ProductId, Store, StoreId, StoreStatus,
+    Product, ProductId, Store, StoreId, StoreStatus, Transaction,
+    TransactionId,
   },
   failure::Failure,
 };
@@ -375,6 +376,62 @@ impl Loader<OrderId> for OrderItemLoader {
           )
         })
         .collect()
+    })
+    .map_err(|_| failure!())
+  }
+}
+
+pub struct IncurredTransactionLoader {
+  db: PgPool,
+}
+
+impl IncurredTransactionLoader {
+  pub fn new(db: PgPool) -> Self {
+    Self { db }
+  }
+}
+
+impl Loader<TransactionId> for IncurredTransactionLoader {
+  type Value = Vec<Transaction>;
+  type Error = Failure;
+
+  async fn load(
+    &self,
+    keys: &[TransactionId],
+  ) -> Result<HashMap<TransactionId, Self::Value>, Self::Error> {
+    sqlx::query_as!(
+      Transaction,
+      r#"
+          select 
+            id, 
+            incurred_by as "incurred_by: TransactionId",
+            account_id,
+            order_id,
+            amount, 
+            incurred_amount,
+            (amount - incurred_amount) as "net_amount!",
+            created_at,
+            modified_at
+          from transactions
+          where incurred_by = any($1)
+          order by id desc
+        "#,
+      &keys.iter().map(|id| id.0).collect::<Vec<Uuid>>()
+    )
+    .fetch_all(&self.db)
+    .await
+    .map(|transactions| {
+      transactions.into_iter().fold(
+        HashMap::<TransactionId, Vec<Transaction>>::new(),
+        |mut acc, transaction| {
+          acc
+            .entry(transaction.incurred_by.clone().unwrap())
+            .or_default()
+            .push(transaction);
+
+          acc
+        },
+      )
     })
     .map_err(|_| failure!())
   }

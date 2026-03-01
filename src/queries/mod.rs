@@ -1,6 +1,9 @@
 use crate::{
   context::RequestContext,
-  dataloader::{OrderItemLoader, PriceLoader, ProductLoader, StandardLoader},
+  dataloader::{
+    IncurredTransactionLoader, OrderItemLoader, PriceLoader, ProductLoader,
+    StandardLoader,
+  },
   entities::{
     Account, Balance, CheckoutLink, CheckoutLinkConnection, CheckoutSession,
     CheckoutSessionConnection, Customer, CustomerConnection, Order,
@@ -479,5 +482,17 @@ impl Transaction {
       .load_one(self.order_id.to_owned())
       .await
       .map(|order| order.unwrap())
+  }
+
+  #[graphql(name = "incurred_transactions")]
+  async fn incurred_transactions(
+    &self,
+    context: &Context<'_>,
+  ) -> Result<Vec<Transaction>, Failure> {
+    context
+      .data_unchecked::<DataLoader<IncurredTransactionLoader>>()
+      .load_one(self.id.to_owned())
+      .await
+      .map(|transactions| transactions.unwrap())
   }
 }

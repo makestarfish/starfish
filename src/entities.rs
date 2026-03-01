@@ -438,7 +438,7 @@ pub struct OrderItem {
   pub modified_at: Option<DateTime<Utc>>,
 }
 
-#[derive(NewType, sqlx::Type, Clone)]
+#[derive(NewType, sqlx::Type, Clone, Eq, PartialEq, Hash)]
 #[sqlx(transparent)]
 pub struct TransactionId(pub Uuid);
 
@@ -446,6 +446,7 @@ pub struct TransactionId(pub Uuid);
 #[graphql(rename_fields = "snake_case", complex)]
 pub struct Transaction {
   pub id: TransactionId,
+  pub incurred_by: Option<TransactionId>,
   pub account_id: AccountId,
   pub order_id: OrderId,
   pub amount: i64,

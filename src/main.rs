@@ -3,7 +3,10 @@ use async_graphql_axum::{GraphQLRequest, GraphQLResponse};
 use axum::{Router, extract::State, http::HeaderMap, routing::post};
 use starfish::{
   context::RequestContext,
-  dataloader::{PriceLoader, ProductLoader, StandardLoader},
+  dataloader::{
+    IncurredTransactionLoader, OrderItemLoader, PriceLoader, ProductLoader,
+    StandardLoader,
+  },
   mutations::Mutation,
   queries::Query,
   routes::stripe_webhook_handler,
@@ -49,6 +52,14 @@ async fn main() {
     ))
     .data(DataLoader::new(
       ProductLoader::new(state.db.clone()),
+      tokio::spawn,
+    ))
+    .data(DataLoader::new(
+      OrderItemLoader::new(state.db.clone()),
+      tokio::spawn,
+    ))
+    .data(DataLoader::new(
+      IncurredTransactionLoader::new(state.db.clone()),
       tokio::spawn,
     ))
     .finish();

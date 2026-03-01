@@ -1,6 +1,6 @@
 use crate::{
   context::RequestContext,
-  entities::Transaction,
+  entities::{Transaction, TransactionId},
   failure::{Failure, FailureReason},
   state::SharedState,
 };
@@ -20,6 +20,7 @@ pub async fn resolve(
     r#"
       select 
         t.id, 
+        t.incurred_by as "incurred_by: TransactionId",
         t.account_id,
         t.order_id, 
         t.amount, 
