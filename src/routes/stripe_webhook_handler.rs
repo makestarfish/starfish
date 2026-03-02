@@ -3,13 +3,14 @@ use crate::{
   failure::{Failure, FailureReason},
   state::SharedState,
 };
-use axum::{extract::State, http::HeaderMap, response::IntoResponse};
+use axum::{extract::State, http::HeaderMap};
+use starfish_stripe::types::Event;
 
 pub async fn handle(
   State(state): State<SharedState>,
   headers: HeaderMap,
   body: String,
-) -> Result<impl IntoResponse, Failure> {
+) -> Result<(), Failure> {
   let signature = headers
     .get("stripe-signature")
     .and_then(|v| v.to_str().ok())
@@ -33,5 +34,10 @@ pub async fn handle(
       failure!(FailureReason::UNAUTHORIZED, "Failed to construct event")
     })?;
 
-  create_order_from_checkout_session::handle(&state, event).await
+  match event {
+    Event::PaymentIntentSucceeded { data, .. } => {
+      create_order_from_checkout_session::handle(&state, data.object).await
+    }
+    _ => Ok(()),
+  }
 }

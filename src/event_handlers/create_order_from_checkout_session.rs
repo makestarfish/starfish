@@ -4,11 +4,12 @@ use crate::{
   state::SharedState,
   utils::calculate_platform_fee,
 };
-use starfish_stripe::types::Event;
+use starfish_stripe::types::PaymentIntent;
 
-pub async fn handle(state: &SharedState, event: Event) -> Result<(), Failure> {
-  let payment_intent_id = event.data.object.get("id").unwrap();
-
+pub async fn handle(
+  state: &SharedState,
+  payment_intent: PaymentIntent,
+) -> Result<(), Failure> {
   let checkout_session = sqlx::query!(
     r#"
       select 
@@ -24,7 +25,7 @@ pub async fn handle(state: &SharedState, event: Event) -> Result<(), Failure> {
       join accounts a on a.store_id = cs.store_id
       where cs.stripe_id = $1
     "#,
-    payment_intent_id,
+    &payment_intent.id,
   )
   .fetch_optional(&state.db)
   .await
@@ -50,7 +51,7 @@ pub async fn handle(state: &SharedState, event: Event) -> Result<(), Failure> {
         modified_at = now()
       where stripe_id = $1
     "#,
-    &payment_intent_id
+    &payment_intent.id,
   )
   .execute(&mut *tx)
   .await

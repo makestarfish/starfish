@@ -2844,9 +2844,9 @@ dependencies = [
 
 [[package]]
 name = "starfish-stripe"
-version = "0.1.16"
+version = "0.1.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6ae797497f52cb2159211cb9ccdb14b46ff30deb10c4fc4bb29a403fc2d42f3d"
+checksum = "58fabde7689e4dc8f2e771e4759be380aed5955a10b1318006aa3f87cc03cc9a"
 dependencies = [
  "hex",
  "hmac",
