@@ -25,7 +25,7 @@ pub async fn resolve(
         t.order_id, 
         t.amount, 
         t.incurred_amount, 
-        (t.amount - t.incurred_amount) as "net_amount!",
+        (t.amount + t.incurred_amount) as "net_amount!",
         t.created_at,
         t.modified_at
       from transactions t

@@ -59,7 +59,7 @@ pub async fn resolve(
         order_id,
         amount, 
         incurred_amount,
-        (amount - incurred_amount) as "net_amount!",
+        (amount + incurred_amount) as "net_amount!",
         created_at,
         modified_at
       from transactions

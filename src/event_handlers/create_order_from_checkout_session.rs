@@ -98,7 +98,7 @@ pub async fn handle(state: &SharedState, event: Event) -> Result<(), Failure> {
     &checkout_session.store_account_id,
     &order.id,
     net_amount,
-    platform_fee_amount
+    -platform_fee_amount
   )
   .fetch_one(&state.db)
   .await
