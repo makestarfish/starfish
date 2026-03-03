@@ -1,0 +1,82 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n          select \n            id, \n            slug, \n            name, \n            status as \"status: StoreStatus\",\n            email, \n            website, \n            avatar_url, \n            created_at, \n            modified_at\n          from stores\n          where id = any($1)\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "slug",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "status: StoreStatus",
+        "type_info": {
+          "Custom": {
+            "name": "store_status",
+            "kind": {
+              "Enum": [
+                "created",
+                "onboarding_started",
+                "denied",
+                "active"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "email",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "website",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "avatar_url",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 8,
+        "name": "modified_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      false,
+      true
+    ]
+  },
+  "hash": "595745b30c5dd876e1c633f8595f5c0d2cb0490db3728e5e8abca1fcb6c5de76"
+}

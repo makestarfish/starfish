@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n      select b.amount \n      from balances b\n      join accounts a on b.account_id = a.id\n      where \n        b.account_id = $1 and \n        exists (\n          select 1\n          from store_members sm\n          where sm.store_id = a.store_id and sm.user_id = $2\n        )\n    ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "amount",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "234fd1bd8fb55b4d5b359a698fcfcf972ddef367511a840c6d13a6ed8829bc26"
+}

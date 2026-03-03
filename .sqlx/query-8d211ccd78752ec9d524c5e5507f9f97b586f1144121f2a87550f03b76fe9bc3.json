@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n      update stores\n      set status = case\n        when $2 then 'active'::store_status\n        else 'onboarding_started'::store_status\n      end\n      where id = $1\n    ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Bool"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "8d211ccd78752ec9d524c5e5507f9f97b586f1144121f2a87550f03b76fe9bc3"
+}

@@ -1,0 +1,46 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n      select a.id, a.stripe_id, a.status as \"status: AccountStatus\"\n      from accounts a\n      where \n        a.store_id = $1 and\n        exists (\n          select 1\n          from store_members sm\n          where a.store_id = sm.store_id and sm.user_id = $2\n        )\n    ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "stripe_id",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "status: AccountStatus",
+        "type_info": {
+          "Custom": {
+            "name": "account_status",
+            "kind": {
+              "Enum": [
+                "onboarding_started",
+                "active",
+                "denied"
+              ]
+            }
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "3c4f82a6ec641329a7cbf2d404a1f32aec94076b34d501d2bf1046be9f61c47c"
+}

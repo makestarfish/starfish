@@ -1,0 +1,82 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n      select \n        s.id, \n        s.slug, \n        s.name, \n        s.status as \"status: StoreStatus\",\n        s.email, \n        s.website, \n        s.avatar_url, \n        s.created_at, \n        s.modified_at\n      from stores s\n      where \n        exists (\n          select 1\n          from store_members sm\n          where s.id = sm.store_id and sm.user_id = $1\n        )\n    ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "slug",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "status: StoreStatus",
+        "type_info": {
+          "Custom": {
+            "name": "store_status",
+            "kind": {
+              "Enum": [
+                "created",
+                "onboarding_started",
+                "denied",
+                "active"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "email",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "website",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "avatar_url",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 8,
+        "name": "modified_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      false,
+      true
+    ]
+  },
+  "hash": "c42beb56404b39a8092b885a81b0e95a32b749a3cdd45c821bcfa2c614eb0d61"
+}

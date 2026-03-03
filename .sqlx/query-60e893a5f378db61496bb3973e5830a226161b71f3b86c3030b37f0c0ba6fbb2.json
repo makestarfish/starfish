@@ -1,0 +1,34 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n      select \n        cl.store_id,\n        cl.success_url,\n        jsonb_agg(\n          jsonb_build_object(\n            'id', p.product_id,\n            'price_amount', p.amount\n          )\n        ) as \"products!: Json<Vec<Product>>\"\n      from checkout_links cl\n      join checkout_link_products clp on clp.checkout_link_id = cl.id\n      join prices p on p.product_id = clp.product_id\n      where cl.client_secret = $1\n      group by cl.store_id, cl.success_url\n    ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "store_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "success_url",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "products!: Json<Vec<Product>>",
+        "type_info": "Jsonb"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      true,
+      null
+    ]
+  },
+  "hash": "60e893a5f378db61496bb3973e5830a226161b71f3b86c3030b37f0c0ba6fbb2"
+}

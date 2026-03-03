@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        select p.amount\n        from prices p\n        where \n          p.product_id = $1 and \n          exists (\n            select 1\n            from checkout_session_products c\n            where c.product_id = p.product_id and c.checkout_session_id = $2\n          )\n      ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "amount",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "e03f2f66a92217d519d39fa0861290e143869cef0b67d2af867e2dfa52d1730b"
+}

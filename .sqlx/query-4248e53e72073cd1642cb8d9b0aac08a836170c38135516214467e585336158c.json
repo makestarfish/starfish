@@ -1,0 +1,41 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n      select \n        s.status as \"status: StoreStatus\",\n        exists (\n          select 1\n          from store_members sm\n          where sm.store_id = s.id and sm.user_id = $2\n        ) as store_member_exists\n      from stores s\n      where s.id = $1\n    ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "status: StoreStatus",
+        "type_info": {
+          "Custom": {
+            "name": "store_status",
+            "kind": {
+              "Enum": [
+                "created",
+                "onboarding_started",
+                "denied",
+                "active"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "store_member_exists",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      null
+    ]
+  },
+  "hash": "4248e53e72073cd1642cb8d9b0aac08a836170c38135516214467e585336158c"
+}

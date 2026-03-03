@@ -1,0 +1,54 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n      insert into orders (\n        store_id, \n        customer_id, \n        checkout_session_id, \n        status, \n        subtotal_amount, \n        discount_amount, \n        tax_amount, \n        platform_fee_amount, \n        billing_reason\n      )\n      values ($1, $2, $3, $4, $5, $6, $7, $8, $9)\n      returning id\n    ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        {
+          "Custom": {
+            "name": "order_status",
+            "kind": {
+              "Enum": [
+                "pending",
+                "paid",
+                "refunded",
+                "partially_refunded"
+              ]
+            }
+          }
+        },
+        "Int8",
+        "Int8",
+        "Int8",
+        "Int8",
+        {
+          "Custom": {
+            "name": "billing_reason",
+            "kind": {
+              "Enum": [
+                "purchase",
+                "subscription_creation",
+                "subscription_renewal",
+                "subscription_update"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "c168cd5f5ab102c79aa851ed3a4c0f5009c88bca603089b8adf0161aa5130941"
+}

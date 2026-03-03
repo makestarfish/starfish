@@ -1,0 +1,25 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n      insert into transactions (account_id, order_id, amount, incurred_amount)\n      values ($1, $2, $3, $4)\n      returning id\n    ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Int8",
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "49558db78033b3d21aa9e7b2ae58099fc0485e8f3cb9ec9161a9af98ba177a7a"
+}

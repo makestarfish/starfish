@@ -1,0 +1,25 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n          insert into customers (stripe_id, store_id, email, avatar_url)\n          values ($1, $2, $3, $4)\n          returning id\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Varchar",
+        "Uuid",
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "b2aa9e6c5cb78e9ae0dace96b3b3e0e720fe078fcd4b058172b0cc10c8f21d00"
+}

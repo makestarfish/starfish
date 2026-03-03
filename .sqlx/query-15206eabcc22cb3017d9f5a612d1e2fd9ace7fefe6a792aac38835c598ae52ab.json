@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n      insert into refresh_tokens (session_id)\n      values ($1)\n      returning id\n    ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "15206eabcc22cb3017d9f5a612d1e2fd9ace7fefe6a792aac38835c598ae52ab"
+}

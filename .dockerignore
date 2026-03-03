@@ -1,0 +1,29 @@
+# build
+target
+
+# infra
+infra
+
+# migrations
+migrations
+
+# environment variable files
+.env
+.env.example
+
+# github
+.github
+
+# git
+.git
+.gitignore
+
+# docker
+.dockerignore
+Dockerfile
+
+# formatting
+rustfmt.toml
+
+# readme
+README.md

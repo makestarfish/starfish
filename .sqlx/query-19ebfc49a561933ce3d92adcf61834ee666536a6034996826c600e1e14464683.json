@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        select \n          product_id, \n          jsonb_agg(\n            jsonb_build_object(\n              'id', id,\n              'product_id', product_id,\n              'amount', amount,\n              'archived', archived,\n              'created_at', created_at,\n              'modified_at', modified_at\n            )\n          ) as \"prices: Json<Vec<Price>>\"\n        from prices\n        where product_id = any($1)\n        group by product_id\n      ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "product_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "prices: Json<Vec<Price>>",
+        "type_info": "Jsonb"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      false,
+      null
+    ]
+  },
+  "hash": "19ebfc49a561933ce3d92adcf61834ee666536a6034996826c600e1e14464683"
+}

@@ -1,0 +1,35 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n      select products.id, products.store_id, prices.amount as price_amount\n      from products\n      join prices on prices.product_id = products.id\n      where \n        products.id = any($1) and\n        exists (\n          select 1\n          from store_members\n          where \n            store_members.store_id = products.store_id and \n            store_members.user_id = $2\n        )\n    ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "store_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "price_amount",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "UuidArray",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "d112d673904e70442357170046effed1717d020121c7470ab4d2ff5099b8d43f"
+}

@@ -1,0 +1,40 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n      select \n        r.revoked as refresh_token_revoked, \n        s.id as session_id, \n        s.user_id as session_user_id,\n        s.revoked as session_revoked\n      from refresh_tokens r\n      join sessions s on r.session_id = s.id\n      where r.id = $1\n    ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "refresh_token_revoked",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 1,
+        "name": "session_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "session_user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "session_revoked",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "b75a4d9d6c7b7b342bccca6b29e2ac85bf973b527241a5f653bfe43421b70e9e"
+}

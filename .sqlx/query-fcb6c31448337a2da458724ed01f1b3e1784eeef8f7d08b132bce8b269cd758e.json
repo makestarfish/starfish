@@ -1,0 +1,77 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n      select \n        cs.id, \n        cs.store_id, \n        cs.customer_id as \"customer_id!\", \n        cs.status as \"status: CheckoutSessionStatus\",\n        cs.amount,\n        cs.tax_amount,\n        cs.discount_amount,\n        a.id as store_account_id\n      from checkout_sessions cs\n      join accounts a on a.store_id = cs.store_id\n      where cs.stripe_id = $1\n    ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "store_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "customer_id!",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "status: CheckoutSessionStatus",
+        "type_info": {
+          "Custom": {
+            "name": "checkout_session_status",
+            "kind": {
+              "Enum": [
+                "open",
+                "expired",
+                "confirmed",
+                "failed",
+                "succeeded"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "amount",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 5,
+        "name": "tax_amount",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 6,
+        "name": "discount_amount",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 7,
+        "name": "store_account_id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      false,
+      false,
+      true,
+      false,
+      false
+    ]
+  },
+  "hash": "fcb6c31448337a2da458724ed01f1b3e1784eeef8f7d08b132bce8b269cd758e"
+}

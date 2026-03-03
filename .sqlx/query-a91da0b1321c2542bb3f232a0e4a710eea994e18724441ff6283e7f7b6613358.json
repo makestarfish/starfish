@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n      select exists (\n        select 1\n        from customers\n        where store_id = $1 and email = $2 and deleted_at is null\n      )\n    ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "exists",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "a91da0b1321c2542bb3f232a0e4a710eea994e18724441ff6283e7f7b6613358"
+}

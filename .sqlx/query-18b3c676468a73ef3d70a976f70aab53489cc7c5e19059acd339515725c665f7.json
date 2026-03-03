@@ -1,0 +1,89 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n      select \n        id,\n        slug,\n        name,\n        status as \"status: StoreStatus\",\n        email,\n        website,\n        avatar_url,\n        created_at,\n        modified_at,\n        exists (\n          select 1\n          from store_members sm\n          where sm.store_id = s.id and sm.user_id = $2\n        ) as member_exists\n      from stores s\n      where s.slug = $1\n    ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "slug",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "status: StoreStatus",
+        "type_info": {
+          "Custom": {
+            "name": "store_status",
+            "kind": {
+              "Enum": [
+                "created",
+                "onboarding_started",
+                "denied",
+                "active"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "email",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "website",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "avatar_url",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 8,
+        "name": "modified_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 9,
+        "name": "member_exists",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      false,
+      true,
+      null
+    ]
+  },
+  "hash": "18b3c676468a73ef3d70a976f70aab53489cc7c5e19059acd339515725c665f7"
+}

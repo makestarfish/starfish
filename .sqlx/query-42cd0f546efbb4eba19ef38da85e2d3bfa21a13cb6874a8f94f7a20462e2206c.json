@@ -1,0 +1,66 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n      select \n        cl.id, \n        cl.store_id, \n        cl.client_secret, \n        cl.label, \n        cl.success_url, \n        rtrim($3, '/') || '/links/' || cl.client_secret as \"url!\",\n        cl.created_at, \n        cl.modified_at\n      from checkout_links cl\n      where \n        cl.id = $1 and \n        exists (\n          select 1\n          from store_members sm\n          where sm.store_id = cl.store_id and user_id = $2\n        )\n    ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "store_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "client_secret",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "label",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "success_url",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "url!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 7,
+        "name": "modified_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      true,
+      null,
+      false,
+      true
+    ]
+  },
+  "hash": "42cd0f546efbb4eba19ef38da85e2d3bfa21a13cb6874a8f94f7a20462e2206c"
+}

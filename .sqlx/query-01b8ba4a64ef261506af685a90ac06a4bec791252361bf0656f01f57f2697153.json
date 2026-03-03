@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n      update one_time_tokens\n      set was_used = true\n      where id = $1\n    ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "01b8ba4a64ef261506af685a90ac06a4bec791252361bf0656f01f57f2697153"
+}

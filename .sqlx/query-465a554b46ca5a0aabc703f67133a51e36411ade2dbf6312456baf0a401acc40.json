@@ -1,0 +1,126 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n      select \n        id,\n        store_id,\n        customer_id,\n        checkout_session_id as \"checkout_session_id: CheckoutSessionId\",\n        status as \"status: OrderStatus\",\n        subtotal_amount,\n        discount_amount,\n        (subtotal_amount - discount_amount) as \"net_amount!\",\n        tax_amount,\n        (subtotal_amount - discount_amount + tax_amount) as \"total_amount!\",\n        platform_fee_amount,\n        billing_reason as \"billing_reason: BillingReason\",\n        created_at,\n        modified_at\n      from orders o\n      where\n        store_id = $1 and\n        (id < $2 or $2 is null) and \n        (id > $3 or $3 is null)\n      order by id desc\n      limit 20\n    ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "store_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "customer_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "checkout_session_id: CheckoutSessionId",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 4,
+        "name": "status: OrderStatus",
+        "type_info": {
+          "Custom": {
+            "name": "order_status",
+            "kind": {
+              "Enum": [
+                "pending",
+                "paid",
+                "refunded",
+                "partially_refunded"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "subtotal_amount",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 6,
+        "name": "discount_amount",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 7,
+        "name": "net_amount!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 8,
+        "name": "tax_amount",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 9,
+        "name": "total_amount!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 10,
+        "name": "platform_fee_amount",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 11,
+        "name": "billing_reason: BillingReason",
+        "type_info": {
+          "Custom": {
+            "name": "billing_reason",
+            "kind": {
+              "Enum": [
+                "purchase",
+                "subscription_creation",
+                "subscription_renewal",
+                "subscription_update"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 12,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 13,
+        "name": "modified_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      null,
+      false,
+      null,
+      false,
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "465a554b46ca5a0aabc703f67133a51e36411ade2dbf6312456baf0a401acc40"
+}

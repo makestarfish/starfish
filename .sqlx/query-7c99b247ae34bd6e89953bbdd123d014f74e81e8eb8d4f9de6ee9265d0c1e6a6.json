@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        select email\n        from customers\n        where id = $1 and store_id = $2\n      ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "email",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "7c99b247ae34bd6e89953bbdd123d014f74e81e8eb8d4f9de6ee9265d0c1e6a6"
+}

@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n      select exists (\n        select 1\n        from store_members sm\n        where sm.store_id = s.id and sm.user_id = $2\n      ) as store_member_exists\n      from stores s\n      where s.id = $1\n    ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "store_member_exists",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "618703f35d6e945837e23fce890b5ab2cc08a9fcb10dde4a0bf230f60e9368c5"
+}

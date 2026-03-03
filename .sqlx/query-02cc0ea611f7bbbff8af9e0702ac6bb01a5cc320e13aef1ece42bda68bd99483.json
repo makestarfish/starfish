@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n      update stores\n      set status = 'onboarding_started'\n      where id = $1\n    ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "02cc0ea611f7bbbff8af9e0702ac6bb01a5cc320e13aef1ece42bda68bd99483"
+}

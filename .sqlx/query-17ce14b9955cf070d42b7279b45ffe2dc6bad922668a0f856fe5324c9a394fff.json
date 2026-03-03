@@ -1,0 +1,29 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n      select p.id, p.store_id\n      from products p\n      where \n        p.id = any($1) and\n        exists (\n          select 1\n          from store_members sm\n          where sm.store_id = p.store_id and sm.user_id = $2\n        )\n    ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "store_id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "UuidArray",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "17ce14b9955cf070d42b7279b45ffe2dc6bad922668a0f856fe5324c9a394fff"
+}

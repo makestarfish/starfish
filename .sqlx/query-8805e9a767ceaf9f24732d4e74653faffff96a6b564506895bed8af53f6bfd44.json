@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n      insert into checkout_link_products (checkout_link_id, product_id)\n      select $1, products\n      from unnest($2::uuid[]) as products\n    ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "UuidArray"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "8805e9a767ceaf9f24732d4e74653faffff96a6b564506895bed8af53f6bfd44"
+}

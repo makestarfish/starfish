@@ -1,0 +1,24 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n      select exists (\n        select 1\n        from one_time_tokens\n        where \n          id = $1 and \n          email = $2 and\n          code_hash = $3 and \n          expires_at > now() \n          and was_used = false\n      )\n    ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "exists",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "04617ac5d7f20a983f771e273eef3f2be815bbbb46ba555b8f00a220d7c9b483"
+}

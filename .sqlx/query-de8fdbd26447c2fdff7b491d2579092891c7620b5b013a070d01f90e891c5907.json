@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        select \n          checkout_session_id,\n          jsonb_agg(\n            jsonb_build_object(\n              'id', products.id,\n              'store_id', products.store_id,\n              'name', products.name,\n              'description', products.description,\n              'archived', products.archived,\n              'created_at', products.created_at,\n              'modified_at', products.modified_at\n            )\n          ) as \"products: Json<Vec<Product>>\"\n        from checkout_session_products\n        join products on checkout_session_products.product_id = products.id\n        where checkout_session_id = any($1)\n        group by checkout_session_id\n      ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "checkout_session_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "products: Json<Vec<Product>>",
+        "type_info": "Jsonb"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      false,
+      null
+    ]
+  },
+  "hash": "de8fdbd26447c2fdff7b491d2579092891c7620b5b013a070d01f90e891c5907"
+}

@@ -1,0 +1,46 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n      insert into accounts (store_id, stripe_id)\n      values ($1, $2)\n      returning id, stripe_id, status as \"status: AccountStatus\"\n    ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "stripe_id",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "status: AccountStatus",
+        "type_info": {
+          "Custom": {
+            "name": "account_status",
+            "kind": {
+              "Enum": [
+                "onboarding_started",
+                "active",
+                "denied"
+              ]
+            }
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Varchar"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "3079a72eff48b295ce74b982a356201d4a94846412a42e4726df3c958eec6319"
+}

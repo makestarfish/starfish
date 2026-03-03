@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n      insert into store_members (store_id, user_id)\n      values ($1, $2)\n    ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "c08769573093a6019fdb1b74ae6856702b4b0f1f647d494e6144323a4f10e563"
+}

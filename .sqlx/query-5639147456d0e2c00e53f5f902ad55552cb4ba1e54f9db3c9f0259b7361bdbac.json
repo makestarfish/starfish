@@ -1,0 +1,18 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n      insert into transactions (account_id, order_id, incurred_by, amount, incurred_amount)\n      values ($1, $2, $3, $4, $5)\n    ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "Int8",
+        "Int8"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "5639147456d0e2c00e53f5f902ad55552cb4ba1e54f9db3c9f0259b7361bdbac"
+}

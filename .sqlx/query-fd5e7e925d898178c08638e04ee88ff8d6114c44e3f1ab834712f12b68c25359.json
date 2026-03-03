@@ -1,0 +1,71 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n      select \n        t.id, \n        t.incurred_by as \"incurred_by: TransactionId\",\n        t.account_id,\n        t.order_id, \n        t.amount, \n        t.incurred_amount, \n        (t.amount + t.incurred_amount) as \"net_amount!\",\n        t.created_at,\n        t.modified_at\n      from transactions t\n      join accounts a on t.account_id = a.id\n      where \n        t.id = $1 and\n        exists (\n          select 1\n          from store_members sm\n          where sm.store_id = a.store_id and sm.user_id = $2\n        )\n    ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "incurred_by: TransactionId",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "account_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "order_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 4,
+        "name": "amount",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 5,
+        "name": "incurred_amount",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 6,
+        "name": "net_amount!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 7,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 8,
+        "name": "modified_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      null,
+      false,
+      true
+    ]
+  },
+  "hash": "fd5e7e925d898178c08638e04ee88ff8d6114c44e3f1ab834712f12b68c25359"
+}
