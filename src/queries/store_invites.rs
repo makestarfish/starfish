@@ -1,6 +1,6 @@
 use crate::{
   context::RequestContext,
-  entities::{Store, StoreInvite, StoreInviteConnection, StoreInviteEdge},
+  entities::{StoreInvite, StoreInviteConnection, StoreInviteEdge},
   failure::{Failure, FailureReason},
   state::SharedState,
 };
@@ -10,7 +10,7 @@ use uuid::Uuid;
 pub async fn resolve(
   state: &SharedState,
   context: &RequestContext,
-  store: &Store,
+  store_id: Uuid,
   _first: Option<i64>,
   after: Option<Uuid>,
   _last: Option<i64>,
@@ -29,7 +29,7 @@ pub async fn resolve(
         where store_id = $1 and user_id = $2
       )
     "#,
-    &store.id.0,
+    &store_id,
     &user_id,
   )
   .fetch_one(&state.db)
@@ -56,7 +56,7 @@ pub async fn resolve(
       order by id desc
       limit 20
     "#,
-    &store.id.0,
+    &store_id,
     revoked.unwrap_or(false),
     after,
     before,

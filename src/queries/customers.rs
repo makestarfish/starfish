@@ -1,22 +1,20 @@
 use crate::{
   context::RequestContext,
-  entities::{Product, ProductConnection, ProductEdge, Store},
+  entities::{Customer, CustomerConnection, CustomerEdge},
   failure::{Failure, FailureReason},
   state::SharedState,
 };
 use uuid::Uuid;
 
-#[allow(clippy::too_many_arguments)]
 pub async fn resolve(
   state: &SharedState,
   context: &RequestContext,
-  store: &Store,
+  store_id: Uuid,
   _first: Option<i64>,
   after: Option<Uuid>,
   _last: Option<i64>,
   before: Option<Uuid>,
-  archived: Option<bool>,
-) -> Result<ProductConnection, Failure> {
+) -> Result<CustomerConnection, Failure> {
   let user_id = context
     .user_id
     .ok_or_else(|| failure!(FailureReason::UNAUTHORIZED))?;
@@ -29,7 +27,7 @@ pub async fn resolve(
         where store_id = $1 and user_id = $2
       )
     "#,
-    &store.id.0,
+    &store_id,
     &user_id,
   )
   .fetch_one(&state.db)
@@ -40,24 +38,23 @@ pub async fn resolve(
     bail!(
       FailureReason::FORBIDDEN,
       "You are not a member of this store"
-    )
+    );
   }
 
-  let products = sqlx::query_as!(
-    Product,
+  let customers = sqlx::query_as!(
+    Customer,
     r#"
-      select id, store_id, name, description, archived, created_at, modified_at
-      from products
+      select id, store_id, email, name, avatar_url, created_at, modified_at
+      from customers
       where 
-        store_id = $1 and 
-        archived = $2 and
-        (id < $3 or $3 is null) and
-        (id > $4 or $4 is null)
+        store_id = $1 and
+        deleted_at is null and
+        (id < $2 or $2 is null) and 
+        (id > $3 or $3 is null)
       order by id desc
       limit 20
     "#,
-    &store.id.0,
-    archived.unwrap_or(false),
+    &store_id,
     after,
     before,
   )
@@ -65,14 +62,14 @@ pub async fn resolve(
   .await
   .map_err(|_| failure!())?;
 
-  Ok(ProductConnection {
-    edges: products
+  Ok(CustomerConnection {
+    edges: customers
       .iter()
-      .map(|product| ProductEdge {
-        cursor: product.id.to_owned(),
-        node: product.clone(),
+      .map(|customer| CustomerEdge {
+        cursor: customer.id.to_owned(),
+        node: customer.clone(),
       })
       .collect(),
-    nodes: products,
+    nodes: customers,
   })
 }

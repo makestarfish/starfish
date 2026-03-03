@@ -24,17 +24,17 @@ pub mod checkout_links;
 pub mod checkout_session;
 pub mod checkout_sessions;
 pub mod customer;
+pub mod customers;
 pub mod order;
 pub mod orders;
 pub mod product;
+pub mod products;
 pub mod session;
 pub mod sessions;
 pub mod store;
-pub mod store_customers;
 pub mod store_invite;
 pub mod store_invites;
 pub mod store_members;
-pub mod store_products;
 pub mod stores;
 mod transaction;
 mod transactions;
@@ -103,6 +103,27 @@ impl Query {
     store::resolve(context.data_unchecked::<SharedState>(), slug).await
   }
 
+  async fn customers(
+    &self,
+    context: &Context<'_>,
+    #[graphql(name = "store_id")] store_id: Uuid,
+    first: Option<i64>,
+    after: Option<Uuid>,
+    last: Option<i64>,
+    before: Option<Uuid>,
+  ) -> Result<CustomerConnection, Failure> {
+    customers::resolve(
+      context.data_unchecked::<SharedState>(),
+      context.data_unchecked::<RequestContext>(),
+      store_id,
+      first,
+      after,
+      last,
+      before,
+    )
+    .await
+  }
+
   async fn customer(
     &self,
     context: &Context<'_>,
@@ -112,6 +133,30 @@ impl Query {
       context.data_unchecked::<SharedState>(),
       context.data_unchecked::<RequestContext>(),
       id,
+    )
+    .await
+  }
+
+  #[allow(clippy::too_many_arguments)]
+  async fn products(
+    &self,
+    context: &Context<'_>,
+    #[graphql(name = "store_id")] store_id: Uuid,
+    first: Option<i64>,
+    after: Option<Uuid>,
+    last: Option<i64>,
+    before: Option<Uuid>,
+    archived: Option<bool>,
+  ) -> Result<ProductConnection, Failure> {
+    products::resolve(
+      context.data_unchecked::<SharedState>(),
+      context.data_unchecked::<RequestContext>(),
+      store_id,
+      first,
+      after,
+      last,
+      before,
+      archived,
     )
     .await
   }
@@ -129,6 +174,31 @@ impl Query {
     .await
   }
 
+  #[allow(clippy::too_many_arguments)]
+  #[graphql(name = "store_invites")]
+  async fn store_invites(
+    &self,
+    context: &Context<'_>,
+    #[graphql(name = "store_id")] store_id: Uuid,
+    first: Option<i64>,
+    after: Option<Uuid>,
+    last: Option<i64>,
+    before: Option<Uuid>,
+    revoked: Option<bool>,
+  ) -> Result<StoreInviteConnection, Failure> {
+    store_invites::resolve(
+      context.data_unchecked::<SharedState>(),
+      context.data_unchecked::<RequestContext>(),
+      store_id,
+      first,
+      after,
+      last,
+      before,
+      revoked,
+    )
+    .await
+  }
+
   #[graphql(name = "store_invite")]
   async fn store_invite(
     &self,
@@ -139,6 +209,28 @@ impl Query {
       context.data_unchecked::<SharedState>(),
       context.data_unchecked::<RequestContext>(),
       id,
+    )
+    .await
+  }
+
+  #[graphql(name = "store_members")]
+  async fn store_members(
+    &self,
+    context: &Context<'_>,
+    #[graphql(name = "store_id")] store_id: Uuid,
+    first: Option<i64>,
+    after: Option<Uuid>,
+    last: Option<i64>,
+    before: Option<Uuid>,
+  ) -> Result<StoreMemberConnection, Failure> {
+    store_members::resolve(
+      context.data_unchecked::<SharedState>(),
+      context.data_unchecked::<RequestContext>(),
+      store_id,
+      first,
+      after,
+      last,
+      before,
     )
     .await
   }
@@ -306,90 +398,6 @@ impl Store {
       context.data_unchecked::<SharedState>(),
       context.data_unchecked::<RequestContext>(),
       self.id.0,
-    )
-    .await
-  }
-
-  async fn members(
-    &self,
-    context: &Context<'_>,
-    first: Option<i64>,
-    after: Option<Uuid>,
-    last: Option<i64>,
-    before: Option<Uuid>,
-  ) -> Result<StoreMemberConnection, Failure> {
-    store_members::resolve(
-      context.data_unchecked::<SharedState>(),
-      context.data_unchecked::<RequestContext>(),
-      self,
-      first,
-      after,
-      last,
-      before,
-    )
-    .await
-  }
-
-  async fn customers(
-    &self,
-    context: &Context<'_>,
-    first: Option<i64>,
-    after: Option<Uuid>,
-    last: Option<i64>,
-    before: Option<Uuid>,
-  ) -> Result<CustomerConnection, Failure> {
-    store_customers::resolve(
-      context.data_unchecked::<SharedState>(),
-      context.data_unchecked::<RequestContext>(),
-      self,
-      first,
-      after,
-      last,
-      before,
-    )
-    .await
-  }
-
-  async fn products(
-    &self,
-    context: &Context<'_>,
-    first: Option<i64>,
-    after: Option<Uuid>,
-    last: Option<i64>,
-    before: Option<Uuid>,
-    archived: Option<bool>,
-  ) -> Result<ProductConnection, Failure> {
-    store_products::resolve(
-      context.data_unchecked::<SharedState>(),
-      context.data_unchecked::<RequestContext>(),
-      self,
-      first,
-      after,
-      last,
-      before,
-      archived,
-    )
-    .await
-  }
-
-  async fn invites(
-    &self,
-    context: &Context<'_>,
-    first: Option<i64>,
-    after: Option<Uuid>,
-    last: Option<i64>,
-    before: Option<Uuid>,
-    revoked: Option<bool>,
-  ) -> Result<StoreInviteConnection, Failure> {
-    store_invites::resolve(
-      context.data_unchecked::<SharedState>(),
-      context.data_unchecked::<RequestContext>(),
-      self,
-      first,
-      after,
-      last,
-      before,
-      revoked,
     )
     .await
   }
