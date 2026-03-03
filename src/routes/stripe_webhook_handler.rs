@@ -1,5 +1,5 @@
 use crate::{
-  event_handlers::create_order_from_checkout_session,
+  event_handlers::{create_order_from_checkout_session, update_account_status},
   failure::{Failure, FailureReason},
   state::SharedState,
 };
@@ -37,6 +37,9 @@ pub async fn handle(
   match event {
     Event::PaymentIntentSucceeded { data, .. } => {
       create_order_from_checkout_session::handle(&state, data.object).await
+    }
+    Event::AccountUpdated { data, .. } => {
+      update_account_status::handle(&state, data.object).await
     }
     _ => Ok(()),
   }

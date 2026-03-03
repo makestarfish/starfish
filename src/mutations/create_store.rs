@@ -36,7 +36,7 @@ pub async fn resolve(
     bail!(
       FailureReason::CONFLICT,
       "The slug '{slug}' is already in use"
-    );
+    )
   }
 
   let mut tx = state.db.begin().await.map_err(|_| failure!())?;
