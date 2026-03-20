@@ -82,7 +82,7 @@ pub async fn handle(
     OrderStatus::Paid as OrderStatus,
     checkout_session.amount,
     checkout_session.discount_amount,
-    checkout_session.tax_amount,
+    checkout_session.tax_amount.unwrap_or(0),
     platform_fee_amount,
     BillingReason::Purchase as BillingReason,
   )
@@ -101,7 +101,7 @@ pub async fn handle(
     net_amount,
     -platform_fee_amount
   )
-  .fetch_one(&state.db)
+  .fetch_one(&mut *tx)
   .await
   .map_err(|_| failure!())?;
 

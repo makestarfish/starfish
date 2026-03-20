@@ -365,7 +365,7 @@ pub struct CheckoutLinkConnection {
 }
 
 #[derive(Enum, sqlx::Type, Clone, Copy, PartialEq, Eq)]
-#[sqlx(rename_all = "snake_case")]
+#[sqlx(rename_all = "snake_case", type_name = "order_status")]
 pub enum OrderStatus {
   Pending,
   Paid,
@@ -374,7 +374,7 @@ pub enum OrderStatus {
 }
 
 #[derive(Enum, sqlx::Type, Clone, Copy, PartialEq, Eq)]
-#[sqlx(rename_all = "snake_case")]
+#[sqlx(rename_all = "snake_case", type_name = "billing_reason")]
 pub enum BillingReason {
   Purchase,
   SubscriptionCreation,

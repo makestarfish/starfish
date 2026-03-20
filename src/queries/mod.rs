@@ -410,7 +410,7 @@ impl Product {
       .data_unchecked::<DataLoader<PriceLoader>>()
       .load_one(self.id.to_owned())
       .await
-      .map(|prices| prices.unwrap())
+      .map(|prices| prices.unwrap_or_default())
   }
 }
 
@@ -440,7 +440,7 @@ impl CheckoutSession {
       .data_unchecked::<DataLoader<ProductLoader>>()
       .load_one(self.id.to_owned())
       .await
-      .map(|products| products.unwrap())
+      .map(|products| products.unwrap_or_default())
   }
 }
 
@@ -478,7 +478,7 @@ impl Order {
       .data_unchecked::<DataLoader<OrderItemLoader>>()
       .load_one(self.id.to_owned())
       .await
-      .map(|items| items.unwrap())
+      .map(|items| items.unwrap_or_default())
   }
 }
 
@@ -501,6 +501,6 @@ impl Transaction {
       .data_unchecked::<DataLoader<IncurredTransactionLoader>>()
       .load_one(self.id.to_owned())
       .await
-      .map(|transactions| transactions.unwrap())
+      .map(|transactions| transactions.unwrap_or_default())
   }
 }
