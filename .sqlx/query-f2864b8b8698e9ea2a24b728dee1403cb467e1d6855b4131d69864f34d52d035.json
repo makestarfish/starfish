@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n      select \n        cs.id, \n        cs.store_id, \n        cs.customer_id as \"customer_id!\", \n        cs.status as \"status: CheckoutSessionStatus\",\n        cs.amount,\n        cs.tax_amount,\n        cs.discount_amount,\n        a.id as store_account_id\n      from checkout_sessions cs\n      join accounts a on a.store_id = cs.store_id\n      where cs.stripe_id = $1\n    ",
+  "query": "\n      select \n        cs.id, \n        cs.store_id, \n        cs.customer_id as \"customer_id!\", \n        cs.status as \"status: CheckoutSessionStatus\",\n        cs.amount,\n        cs.tax_amount,\n        cs.discount_amount,\n        a.id as store_account_id\n      from checkout_sessions cs\n      join accounts a on a.store_id = cs.store_id\n      where cs.stripe_id = $1\n      for update\n    ",
   "describe": {
     "columns": [
       {
@@ -73,5 +73,5 @@
       false
     ]
   },
-  "hash": "fcb6c31448337a2da458724ed01f1b3e1784eeef8f7d08b132bce8b269cd758e"
+  "hash": "f2864b8b8698e9ea2a24b728dee1403cb467e1d6855b4131d69864f34d52d035"
 }

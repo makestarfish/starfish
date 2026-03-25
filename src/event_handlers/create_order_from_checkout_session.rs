@@ -10,6 +10,8 @@ pub async fn handle(
   state: &SharedState,
   payment_intent: PaymentIntent,
 ) -> Result<(), Failure> {
+  let mut tx = state.db.begin().await.map_err(|_| failure!())?;
+
   let checkout_session = sqlx::query!(
     r#"
       select 
@@ -24,10 +26,11 @@ pub async fn handle(
       from checkout_sessions cs
       join accounts a on a.store_id = cs.store_id
       where cs.stripe_id = $1
+      for update
     "#,
     &payment_intent.id,
   )
-  .fetch_optional(&state.db)
+  .fetch_optional(&mut *tx)
   .await
   .map_err(|_| failure!())?
   .ok_or_else(|| {
@@ -40,8 +43,6 @@ pub async fn handle(
   if matches!(checkout_session.status, CheckoutSessionStatus::Succeeded) {
     return Ok(());
   }
-
-  let mut tx = state.db.begin().await.map_err(|_| failure!())?;
 
   sqlx::query!(
     r#"
@@ -115,7 +116,10 @@ pub async fn handle(
     &transaction.id,
     -platform_fee_amount,
     0,
-  ).execute(&mut *tx).await.map_err(|_| failure!())?;
+  )
+  .execute(&mut *tx)
+  .await
+  .map_err(|_| failure!())?;
 
   sqlx::query!(
     r#"
@@ -126,7 +130,7 @@ pub async fn handle(
     checkout_session.store_account_id,
     net_amount - platform_fee_amount,
   )
-  .execute(&state.db)
+  .execute(&mut *tx)
   .await
   .map_err(|_| failure!())?;
 
