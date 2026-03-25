@@ -3,7 +3,7 @@ use crate::{
   entities::Customer,
   failure::{Failure, FailureReason},
   state::SharedState,
-  utils::create_gravatar_url,
+  utils::create_avatar_url,
 };
 use uuid::Uuid;
 
@@ -72,7 +72,7 @@ pub async fn resolve(
     &store_id,
     &email,
     name,
-    create_gravatar_url(&email),
+    create_avatar_url(&email),
   )
   .fetch_one(&state.db)
   .await

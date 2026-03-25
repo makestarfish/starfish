@@ -2,7 +2,7 @@ use crate::{
   entities::{CheckoutSession, CheckoutSessionStatus, CustomerId},
   failure::{Failure, FailureReason},
   state::SharedState,
-  utils::create_gravatar_url,
+  utils::create_avatar_url,
 };
 use starfish_stripe::types::ConfirmPaymentIntentParams;
 
@@ -65,7 +65,7 @@ pub async fn resolve(
         "#,
         &checkout_session.store_id,
         &customer_email,
-        &create_gravatar_url(&customer_email),
+        create_avatar_url(&customer_email),
       )
       .fetch_one(&mut *tx)
       .await
