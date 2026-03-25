@@ -1,12 +1,11 @@
-use starfish_stripe::types::CreateCustomerParams;
-use uuid::Uuid;
-
 use crate::{
   context::RequestContext,
   entities::Customer,
   failure::{Failure, FailureReason},
   state::SharedState,
+  utils::create_gravatar_url,
 };
+use uuid::Uuid;
 
 pub async fn resolve(
   state: &SharedState,
@@ -63,35 +62,17 @@ pub async fn resolve(
     )
   }
 
-  let mut create_customer_params =
-    CreateCustomerParams::new().with_email(&email);
-
-  if let Some(name) = name.as_ref() {
-    create_customer_params = create_customer_params.with_name(name);
-  }
-
-  let stripe_customer = state
-    .stripe
-    .customers
-    .create(create_customer_params)
-    .await
-    .map_err(|_| failure!())?;
-
   let customer = sqlx::query_as!(
     Customer,
     r#"
-      insert into customers (stripe_id, store_id, email, name, avatar_url)
-      values ($1, $2, $3, $4, $5)
+      insert into customers (store_id, email, name, avatar_url)
+      values ($1, $2, $3, $4)
       returning id, store_id, email, name, avatar_url, created_at, modified_at
     "#,
-    &stripe_customer.id,
     &store_id,
     &email,
     name,
-    format!(
-      "https://www.gravatar.com/avatar/{:x}?d=404",
-      md5::compute(email.as_bytes())
-    )
+    create_gravatar_url(&email),
   )
   .fetch_one(&state.db)
   .await

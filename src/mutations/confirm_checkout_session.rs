@@ -2,10 +2,9 @@ use crate::{
   entities::{CheckoutSession, CheckoutSessionStatus, CustomerId},
   failure::{Failure, FailureReason},
   state::SharedState,
+  utils::create_gravatar_url,
 };
-use starfish_stripe::types::{
-  ConfirmPaymentIntentParams, CreateCustomerParams,
-};
+use starfish_stripe::types::ConfirmPaymentIntentParams;
 
 pub async fn resolve(
   state: &SharedState,
@@ -13,6 +12,8 @@ pub async fn resolve(
   confirmation_token_id: String,
   customer_email: Option<String>,
 ) -> Result<CheckoutSession, Failure> {
+  let mut tx = state.db.begin().await.map_err(|_| failure!())?;
+
   let checkout_session = sqlx::query!(
     r#"
       select
@@ -24,10 +25,11 @@ pub async fn resolve(
         success_url
       from checkout_sessions
       where client_secret = $1
+      for update
     "#,
     &client_secret,
   )
-  .fetch_optional(&state.db)
+  .fetch_optional(&mut *tx)
   .await
   .map_err(|_| failure!())?
   .ok_or_else(|| {
@@ -51,70 +53,25 @@ pub async fn resolve(
     .or(customer_email)
     .ok_or_else(|| failure!(FailureReason::UNPROCESSABLE_ENTITY, "The argument 'customer_email' is required since the checkout session is not associated with a customer"))?;
 
-  let confirm_payment_intent_params = ConfirmPaymentIntentParams::new()
-    .with_confirmation_token(&confirmation_token_id)
-    .with_return_url(&state.config.website_base_url);
-
-  state
-    .stripe
-    .payment_intents
-    .confirm(&checkout_session.stripe_id, confirm_payment_intent_params)
-    .await
-    .map_err(|_| failure!())?;
-
-  let mut tx = state.db.begin().await.map_err(|_| failure!())?;
-
   let customer_id = match checkout_session.customer_id {
     Some(customer_id) => customer_id,
-    _ => 'customer: {
-      let customer_with_same_email = sqlx::query!(
+    _ => {
+      let customer = sqlx::query!(
         r#"
-          select id
-          from customers
-          where store_id = $1 and email = $2
-        "#,
-        &checkout_session.store_id,
-        &customer_email,
-      )
-      .fetch_optional(&mut *tx)
-      .await
-      .map_err(|_| failure!())?;
-
-      if let Some(existing_customer) = customer_with_same_email {
-        break 'customer existing_customer.id;
-      }
-
-      let create_customer_params =
-        CreateCustomerParams::new().with_email(&customer_email);
-
-      let stripe_customer = state
-        .stripe
-        .customers
-        .create(create_customer_params)
-        .await
-        .map_err(|_| failure!())?;
-
-      let avatar_url = format!(
-        "https://www.gravatar.com/avatar/{:x}?d=404",
-        md5::compute(customer_email.as_bytes())
-      );
-
-      let created_customer = sqlx::query!(
-        r#"
-          insert into customers (stripe_id, store_id, email, avatar_url)
-          values ($1, $2, $3, $4)
+          insert into customers (store_id, email, avatar_url)
+          values ($1, $2, $3)
+          on conflict (store_id, email) do update set email = excluded.email
           returning id
         "#,
-        &stripe_customer.id,
         &checkout_session.store_id,
         &customer_email,
-        &avatar_url,
+        &create_gravatar_url(&customer_email),
       )
       .fetch_one(&mut *tx)
       .await
       .map_err(|_| failure!())?;
 
-      created_customer.id
+      customer.id
     }
   };
 
@@ -155,6 +112,17 @@ pub async fn resolve(
   .map_err(|_| failure!())?;
 
   tx.commit().await.map_err(|_| failure!())?;
+
+  let confirm_params = ConfirmPaymentIntentParams::new()
+    .with_confirmation_token(&confirmation_token_id)
+    .with_return_url(&state.config.website_base_url);
+
+  state
+    .stripe
+    .payment_intents
+    .confirm(&checkout_session.stripe_id, confirm_params)
+    .await
+    .map_err(|_| failure!())?;
 
   Ok(confirmed_checkout_session)
 }

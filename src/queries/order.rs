@@ -48,7 +48,12 @@ pub async fn resolve(
   .fetch_optional(&state.db)
   .await
   .map_err(|_| failure!())?
-  .ok_or_else(|| failure!(FailureReason::NOT_FOUND, "The order '{id}' could not be found"))?;
+  .ok_or_else(|| {
+    failure!(
+      FailureReason::NOT_FOUND,
+      "The order '{id}' could not be found"
+    )
+  })?;
 
   Ok(order)
 }
