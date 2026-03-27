@@ -6,7 +6,6 @@ use crate::{
 };
 use serde::Deserialize;
 use sqlx::types::Json;
-use starfish_stripe::types::CreatePaymentIntentParams;
 use uuid::Uuid;
 
 #[derive(Deserialize, Debug)]
@@ -49,17 +48,7 @@ pub async fn resolve(
   })?;
 
   let products = checkout_link.products.0;
-  let product = products.first().unwrap();
-
-  let create_payment_intent_params =
-    CreatePaymentIntentParams::new(product.price_amount, "usd");
-
-  let payment_intent = state
-    .stripe
-    .payment_intents
-    .create(create_payment_intent_params)
-    .await
-    .map_err(|_| failure!())?;
+  let product = products.first().ok_or_else(|| failure!())?;
 
   let mut tx = state.db.begin().await.map_err(|_| failure!())?;
 
@@ -69,7 +58,6 @@ pub async fn resolve(
     CheckoutSession,
     r#"
       insert into checkout_sessions (
-        stripe_id, 
         store_id, 
         product_id, 
         client_secret, 
@@ -79,12 +67,7 @@ pub async fn resolve(
         $1, 
         $2, 
         $3, 
-        $4, 
-        (
-          select amount 
-          from prices 
-          where product_id = $3
-        )
+        $4
       )
       returning
         id,
@@ -104,15 +87,20 @@ pub async fn resolve(
         created_at,
         modified_at
     "#,
-    &payment_intent.id,
     &checkout_link.store_id,
     &product.id,
     &client_secret,
+    product.price_amount,
     &state.config.website_base_url,
   )
   .fetch_one(&mut *tx)
   .await
   .map_err(|_| failure!())?;
+
+  let product_identifiers = products
+    .iter()
+    .map(|product| product.id)
+    .collect::<Vec<Uuid>>();
 
   sqlx::query!(
     r#"
@@ -121,10 +109,7 @@ pub async fn resolve(
       from unnest($2::uuid[]) as products
     "#,
     &checkout_session.id.0,
-    &products
-      .iter()
-      .map(|product| product.id)
-      .collect::<Vec<Uuid>>(),
+    &product_identifiers,
   )
   .execute(&mut *tx)
   .await

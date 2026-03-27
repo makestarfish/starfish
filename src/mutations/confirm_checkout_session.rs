@@ -87,8 +87,11 @@ pub async fn resolve(
   let payment_intent_params =
     CreatePaymentIntentParams::new(checkout_session.total_amount, "usd")
       .with_confirmation_token(&confirmation_token_id)
+      .with_return_url(&state.config.generate_website_url(&format!(
+        "/checkout/{}/confirm",
+        checkout_session.client_secret
+      )))
       .with_confirm(true)
-      .with_return_url(&state.config.generate_website_url(&format!("/checkout/{}/confirm", checkout_session.client_secret)))
       .with_metadata("store_id", &checkout_session.store_id.0.to_string())
       .with_metadata("checkout_session_id", &checkout_session.id.0.to_string());
 
@@ -119,7 +122,7 @@ pub async fn resolve(
   Ok(confirmed_checkout_session)
 }
 
-/// Locks the checkout session using FOR UPDATE NO WAIT;
+/// Locks the checkout session using FOR UPDATE NO WAIT.
 /// See: https://www.postgresql.org/docs/current/explicit-locking.html
 async fn lock_checkout_session_update(
   state: &SharedState,
@@ -159,9 +162,12 @@ async fn lock_checkout_session_update(
 
   match checkout_session {
     Err(error) => {
-      // The 'lock_not_available' error.
-      // See: https://www.postgresql.org/docs/current/errcodes-appendix.html
-      if error.is_some_and(|e| e.code().is_some_and(|c| c == "55P03")) {
+      if let Some(db_error) = error
+        && let Some(code) = db_error.code()
+        // The 'lock_not_available' error.
+        // See: https://www.postgresql.org/docs/current/errcodes-appendix.html
+        && code == "55P03"
+      {
         bail!(
           FailureReason::CONFLICT,
           "The checkout session is being processed"

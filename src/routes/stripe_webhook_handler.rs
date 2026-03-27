@@ -25,11 +25,7 @@ pub async fn handle(
   let event = state
     .stripe
     .webhooks
-    .construct_event(
-      &body,
-      signature,
-      &state.config.stripe_webhook_signing_secret,
-    )
+    .construct_event(&body, signature, &state.config.stripe_webhook_secret)
     .await
     .map_err(|_| {
       failure!(FailureReason::UNAUTHORIZED, "Failed to construct event")

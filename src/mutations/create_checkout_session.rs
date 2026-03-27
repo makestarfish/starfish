@@ -5,7 +5,6 @@ use crate::{
   state::SharedState,
   utils::create_client_secret,
 };
-use starfish_stripe::types::CreatePaymentIntentParams;
 use uuid::Uuid;
 
 pub async fn resolve(
@@ -103,29 +102,18 @@ pub async fn resolve(
 
   let client_secret = create_client_secret("starfish_cs_");
 
-  let create_payment_intent_params =
-    CreatePaymentIntentParams::new(product.price_amount, "usd");
-
-  let payment_intent = state
-    .stripe
-    .payment_intents
-    .create(create_payment_intent_params)
-    .await
-    .map_err(|_| failure!())?;
-
   let checkout_session = sqlx::query_as!(
     CheckoutSession,
     r#"
       insert into checkout_sessions (
-        stripe_id,
-        store_id, 
+        store_id,
         product_id, 
         client_secret,
         customer_id, 
         amount, 
         customer_email
       )
-      values ($1, $2, $3, $4, $5, $6, $7)
+      values ($1, $2, $3, $4, $5, $6)
       returning
         id,
         store_id,
@@ -134,7 +122,7 @@ pub async fn resolve(
         customer_email,
         client_secret,
         status as "status: CheckoutSessionStatus",
-        rtrim($8, '/') || '/checkout/' || client_secret as "url!",
+        rtrim($7, '/') || '/checkout/' || client_secret as "url!",
         success_url,
         amount,
         discount_amount,
@@ -144,7 +132,6 @@ pub async fn resolve(
         created_at,
         modified_at
     "#,
-    &payment_intent.id,
     &product.store_id,
     &product.id,
     &client_secret,
