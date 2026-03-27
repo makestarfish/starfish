@@ -20,4 +20,8 @@ impl Config {
   pub fn from_env() -> Self {
     envy::from_env::<Config>().expect("invalid environment variables")
   }
+
+  pub fn generate_website_url(&self, path: &str) -> String {
+    format!("{}{}", self.website_base_url.trim_end_matches('/'), path)
+  }
 }

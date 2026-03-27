@@ -84,20 +84,21 @@ pub async fn resolve(
   .await
   .map_err(|_| failure!())?;
 
-  let create_payment_intent_params =
+  let payment_intent_params =
     CreatePaymentIntentParams::new(checkout_session.total_amount, "usd")
       .with_confirmation_token(&confirmation_token_id)
       .with_confirm(true)
+      .with_return_url(&state.config.generate_website_url(&format!("/checkout/{}/confirm", checkout_session.client_secret)))
       .with_metadata("store_id", &checkout_session.store_id.0.to_string())
       .with_metadata("checkout_session_id", &checkout_session.id.0.to_string());
 
-  let create_payment_intent_result = state
+  let payment_intent_result = state
     .stripe
     .payment_intents
-    .create(create_payment_intent_params)
+    .create(payment_intent_params)
     .await;
 
-  if let Err(error) = create_payment_intent_result {
+  if let Err(error) = payment_intent_result {
     if let starfish_stripe::Error::Stripe(stripe_error) = error
       && stripe_error.decline_code.is_some()
     {

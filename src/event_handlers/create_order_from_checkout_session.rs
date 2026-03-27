@@ -1,14 +1,14 @@
 use crate::{
   entities::{BillingReason, CheckoutSessionStatus, OrderStatus},
-  failure::{Failure, FailureReason},
+  failure::Failure,
   state::SharedState,
   utils::calculate_platform_fee,
 };
-use starfish_stripe::types::PaymentIntent;
+use uuid::Uuid;
 
 pub async fn handle(
   state: &SharedState,
-  payment_intent: PaymentIntent,
+  checkout_session_id: Uuid,
 ) -> Result<(), Failure> {
   let mut tx = state.db.begin().await.map_err(|_| failure!())?;
 
@@ -22,23 +22,18 @@ pub async fn handle(
         cs.amount,
         cs.tax_amount,
         cs.discount_amount,
+        (cs.amount - cs.discount_amount) as "net_amount!",
         a.id as store_account_id
       from checkout_sessions cs
       join accounts a on a.store_id = cs.store_id
-      where cs.stripe_id = $1
+      where cs.id = $1
       for update
     "#,
-    &payment_intent.id,
+    &checkout_session_id,
   )
-  .fetch_optional(&mut *tx)
+  .fetch_one(&mut *tx)
   .await
-  .map_err(|_| failure!())?
-  .ok_or_else(|| {
-    failure!(
-      FailureReason::NOT_FOUND,
-      "The checkout session could not be found"
-    )
-  })?;
+  .map_err(|_| failure!())?;
 
   if matches!(checkout_session.status, CheckoutSessionStatus::Succeeded) {
     return Ok(());
@@ -50,16 +45,13 @@ pub async fn handle(
       set 
         status = 'succeeded',
         modified_at = now()
-      where stripe_id = $1
+      where id = $1
     "#,
-    &payment_intent.id,
+    &checkout_session_id,
   )
   .execute(&mut *tx)
   .await
   .map_err(|_| failure!())?;
-
-  let net_amount = checkout_session.amount - checkout_session.discount_amount;
-  let platform_fee_amount = calculate_platform_fee(net_amount);
 
   let order = sqlx::query!(
     r#"
@@ -75,7 +67,7 @@ pub async fn handle(
         billing_reason
       )
       values ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-      returning id
+      returning id, platform_fee_amount
     "#,
     &checkout_session.store_id,
     &checkout_session.customer_id,
@@ -84,7 +76,7 @@ pub async fn handle(
     checkout_session.amount,
     checkout_session.discount_amount,
     checkout_session.tax_amount.unwrap_or(0),
-    platform_fee_amount,
+    calculate_platform_fee(checkout_session.net_amount),
     BillingReason::Purchase as BillingReason,
   )
   .fetch_one(&mut *tx)
@@ -99,8 +91,8 @@ pub async fn handle(
     "#,
     &checkout_session.store_account_id,
     &order.id,
-    net_amount,
-    -platform_fee_amount
+    checkout_session.net_amount,
+    -order.platform_fee_amount,
   )
   .fetch_one(&mut *tx)
   .await
@@ -114,7 +106,7 @@ pub async fn handle(
     &checkout_session.store_account_id,
     &order.id,
     &transaction.id,
-    -platform_fee_amount,
+    -order.platform_fee_amount,
     0,
   )
   .execute(&mut *tx)
@@ -128,7 +120,7 @@ pub async fn handle(
       where account_id = $1
     "#,
     checkout_session.store_account_id,
-    net_amount - platform_fee_amount,
+    checkout_session.net_amount - order.platform_fee_amount,
   )
   .execute(&mut *tx)
   .await

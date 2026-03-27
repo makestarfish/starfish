@@ -5,6 +5,7 @@ use crate::{
 };
 use axum::{extract::State, http::HeaderMap};
 use starfish_stripe::types::Event;
+use uuid::Uuid;
 
 pub async fn handle(
   State(state): State<SharedState>,
@@ -36,7 +37,16 @@ pub async fn handle(
 
   match event {
     Event::PaymentIntentSucceeded { data, .. } => {
-      create_order_from_checkout_session::handle(&state, data.object).await
+      if let Some(checkout_session_id_meta) =
+        data.object.metadata.get("checkout_session_id")
+        && let Ok(checkout_session_id) =
+          Uuid::parse_str(checkout_session_id_meta)
+      {
+        create_order_from_checkout_session::handle(&state, checkout_session_id)
+          .await
+      } else {
+        Ok(())
+      }
     }
     Event::AccountUpdated { data, .. } => {
       update_account_status::handle(&state, data.object).await
