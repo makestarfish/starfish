@@ -50,6 +50,9 @@ failure_reasons! {
   /// 500 INTERNAL_SERVER_ERROR
   (INTERNAL_SERVER_ERROR, "Distortion in spacetime detected: internal server error"),
 
+  /// 400 BAD_REQUEST
+  (BAD_REQUEST, "The request could not be processed"),
+
   /// 401 UNAUTHORIZED
   (UNAUTHORIZED, "Requires authentication"),
 
