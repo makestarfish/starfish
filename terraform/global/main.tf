@@ -25,6 +25,7 @@ resource "tfe_variable" "ghcr_auth_token" {
 
 resource "tfe_variable" "render_api_key" {
   key             = "render_api_key"
+  description     = "Render API key"
   category        = "env"
   sensitive       = true
   variable_set_id = tfe_variable_set.global.id
