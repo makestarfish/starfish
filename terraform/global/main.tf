@@ -24,9 +24,17 @@ resource "tfe_variable" "ghcr_auth_token" {
 }
 
 resource "tfe_variable" "render_api_key" {
-  key             = "render_api_key"
+  key             = "RENDER_API_KEY"
   description     = "Render API key"
   category        = "env"
   sensitive       = true
+  variable_set_id = tfe_variable_set.global.id
+}
+
+resource "tfe_variable" "render_owner_id" {
+  key             = "RENDER_OWNER_ID"
+  value           = "usr-cfq7e8qrrk08lt47viig"
+  category        = "env"
+  description     = "Render owner ID"
   variable_set_id = tfe_variable_set.global.id
 }
