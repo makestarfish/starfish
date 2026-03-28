@@ -3,7 +3,7 @@ provider "tfe" {}
 resource "tfe_variable_set" "global" {
   name         = "Global Settings"
   description  = "For variables that are used in multiple or all environments"
-  organization = "starfish"
+  organization = "starfish-labs"
   global       = true
 }
 
