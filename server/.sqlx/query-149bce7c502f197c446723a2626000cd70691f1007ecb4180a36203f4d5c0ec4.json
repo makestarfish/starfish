@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n      insert into customers (stripe_id, store_id, email, name, avatar_url)\n      values ($1, $2, $3, $4, $5)\n      returning id, store_id, email, name, avatar_url, created_at, modified_at\n    ",
+  "query": "\n      insert into customers (store_id, email, name, avatar_url)\n      values ($1, $2, $3, $4)\n      returning id, store_id, email, name, avatar_url, created_at, modified_at\n    ",
   "describe": {
     "columns": [
       {
@@ -41,7 +41,6 @@
     ],
     "parameters": {
       "Left": [
-        "Varchar",
         "Uuid",
         "Text",
         "Text",
@@ -58,5 +57,5 @@
       true
     ]
   },
-  "hash": "45d63392274cc0f3313ccd273fea22c2a0cc73801135961620f421dde485ed86"
+  "hash": "149bce7c502f197c446723a2626000cd70691f1007ecb4180a36203f4d5c0ec4"
 }

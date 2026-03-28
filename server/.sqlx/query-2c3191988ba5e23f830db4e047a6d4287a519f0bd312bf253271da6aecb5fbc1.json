@@ -1,0 +1,126 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n      select\n        id,\n        store_id,\n        product_id,\n        customer_id as \"customer_id: CustomerId\",\n        customer_email,\n        client_secret,\n        status as \"status: CheckoutSessionStatus\",\n        rtrim($2, '/') || '/checkout/' || client_secret as \"url!\",\n        success_url,\n        amount,\n        discount_amount,\n        tax_amount,\n        (amount - discount_amount) as \"net_amount!\",\n        (amount - discount_amount + coalesce(tax_amount, 0)) as \"total_amount!\",\n        created_at,\n        modified_at\n      from checkout_sessions\n      where client_secret = $1\n      for update of checkout_sessions nowait\n    ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "store_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "product_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "customer_id: CustomerId",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 4,
+        "name": "customer_email",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "client_secret",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "status: CheckoutSessionStatus",
+        "type_info": {
+          "Custom": {
+            "name": "checkout_session_status",
+            "kind": {
+              "Enum": [
+                "open",
+                "expired",
+                "confirmed",
+                "failed",
+                "succeeded"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "url!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "success_url",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 9,
+        "name": "amount",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 10,
+        "name": "discount_amount",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 11,
+        "name": "tax_amount",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 12,
+        "name": "net_amount!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 13,
+        "name": "total_amount!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 14,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 15,
+        "name": "modified_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      true,
+      false,
+      false,
+      null,
+      true,
+      false,
+      false,
+      true,
+      null,
+      null,
+      false,
+      true
+    ]
+  },
+  "hash": "2c3191988ba5e23f830db4e047a6d4287a519f0bd312bf253271da6aecb5fbc1"
+}

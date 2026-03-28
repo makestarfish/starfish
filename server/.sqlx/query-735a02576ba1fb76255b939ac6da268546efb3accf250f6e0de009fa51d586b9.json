@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n      update checkout_sessions\n      set \n        status = 'succeeded',\n        modified_at = now()\n      where id = $1\n    ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "735a02576ba1fb76255b939ac6da268546efb3accf250f6e0de009fa51d586b9"
+}

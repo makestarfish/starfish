@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n      select \n        cs.id, \n        cs.store_id, \n        cs.customer_id as \"customer_id!\", \n        cs.status as \"status: CheckoutSessionStatus\",\n        cs.amount,\n        cs.tax_amount,\n        cs.discount_amount,\n        a.id as store_account_id\n      from checkout_sessions cs\n      join accounts a on a.store_id = cs.store_id\n      where cs.stripe_id = $1\n      for update\n    ",
+  "query": "\n      select \n        cs.id, \n        cs.store_id, \n        cs.customer_id as \"customer_id!\", \n        cs.status as \"status: CheckoutSessionStatus\",\n        cs.amount,\n        cs.tax_amount,\n        cs.discount_amount,\n        (cs.amount - cs.discount_amount) as \"net_amount!\",\n        a.id as store_account_id\n      from checkout_sessions cs\n      join accounts a on a.store_id = cs.store_id\n      where cs.id = $1\n      for update\n    ",
   "describe": {
     "columns": [
       {
@@ -53,13 +53,18 @@
       },
       {
         "ordinal": 7,
+        "name": "net_amount!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 8,
         "name": "store_account_id",
         "type_info": "Uuid"
       }
     ],
     "parameters": {
       "Left": [
-        "Text"
+        "Uuid"
       ]
     },
     "nullable": [
@@ -70,8 +75,9 @@
       false,
       true,
       false,
+      null,
       false
     ]
   },
-  "hash": "f2864b8b8698e9ea2a24b728dee1403cb467e1d6855b4131d69864f34d52d035"
+  "hash": "acf2d6f2b8f334ad4af377a32e278c526f1adb7d57243963de364098beec2647"
 }

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n      insert into checkout_sessions (\n        stripe_id, \n        store_id, \n        product_id, \n        client_secret, \n        amount\n      )\n      values (\n        $1, \n        $2, \n        $3, \n        $4, \n        (\n          select amount \n          from prices \n          where product_id = $3\n        )\n      )\n      returning\n        id,\n        store_id,\n        product_id,\n        customer_id as \"customer_id: CustomerId\",\n        customer_email,\n        client_secret,\n        status as \"status: CheckoutSessionStatus\",\n        rtrim($5, '/') || '/checkout/' || client_secret as \"url!\",\n        success_url,\n        amount,\n        discount_amount,\n        tax_amount,\n        (amount - discount_amount) as \"net_amount!\",\n        (amount - discount_amount + coalesce(tax_amount, 0)) as \"total_amount!\",\n        created_at,\n        modified_at\n    ",
+  "query": "\n      insert into checkout_sessions (\n        store_id, \n        product_id, \n        client_secret, \n        amount\n      )\n      values (\n        $1, \n        $2, \n        $3, \n        $4\n      )\n      returning\n        id,\n        store_id,\n        product_id,\n        customer_id as \"customer_id: CustomerId\",\n        customer_email,\n        client_secret,\n        status as \"status: CheckoutSessionStatus\",\n        rtrim($5, '/') || '/checkout/' || client_secret as \"url!\",\n        success_url,\n        amount,\n        discount_amount,\n        tax_amount,\n        (amount - discount_amount) as \"net_amount!\",\n        (amount - discount_amount + coalesce(tax_amount, 0)) as \"total_amount!\",\n        created_at,\n        modified_at\n    ",
   "describe": {
     "columns": [
       {
@@ -99,10 +99,10 @@
     ],
     "parameters": {
       "Left": [
-        "Varchar",
         "Uuid",
         "Uuid",
         "Text",
+        "Int8",
         "Text"
       ]
     },
@@ -125,5 +125,5 @@
       true
     ]
   },
-  "hash": "0d44212af2f9143e98c14157123085df10854c861117a47e49dd24748305e830"
+  "hash": "9495627478c75841a28cda38a78c78cb1f0e8e9090095a9fa43db5baaa635937"
 }

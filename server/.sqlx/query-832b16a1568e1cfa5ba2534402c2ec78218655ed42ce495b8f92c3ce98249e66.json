@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n      insert into checkout_sessions (\n        stripe_id,\n        store_id, \n        product_id, \n        client_secret,\n        customer_id, \n        amount, \n        customer_email\n      )\n      values ($1, $2, $3, $4, $5, $6, $7)\n      returning\n        id,\n        store_id,\n        product_id,\n        customer_id as \"customer_id: CustomerId\",\n        customer_email,\n        client_secret,\n        status as \"status: CheckoutSessionStatus\",\n        rtrim($8, '/') || '/checkout/' || client_secret as \"url!\",\n        success_url,\n        amount,\n        discount_amount,\n        tax_amount,\n        (amount - discount_amount) as \"net_amount!\",\n        (amount - discount_amount + coalesce(tax_amount, 0)) as \"total_amount!\",\n        created_at,\n        modified_at\n    ",
+  "query": "\n      insert into checkout_sessions (\n        store_id,\n        product_id, \n        client_secret,\n        customer_id, \n        amount, \n        customer_email\n      )\n      values ($1, $2, $3, $4, $5, $6)\n      returning\n        id,\n        store_id,\n        product_id,\n        customer_id as \"customer_id: CustomerId\",\n        customer_email,\n        client_secret,\n        status as \"status: CheckoutSessionStatus\",\n        rtrim($7, '/') || '/checkout/' || client_secret as \"url!\",\n        success_url,\n        amount,\n        discount_amount,\n        tax_amount,\n        (amount - discount_amount) as \"net_amount!\",\n        (amount - discount_amount + coalesce(tax_amount, 0)) as \"total_amount!\",\n        created_at,\n        modified_at\n    ",
   "describe": {
     "columns": [
       {
@@ -99,7 +99,6 @@
     ],
     "parameters": {
       "Left": [
-        "Varchar",
         "Uuid",
         "Uuid",
         "Text",
@@ -128,5 +127,5 @@
       true
     ]
   },
-  "hash": "6f6beb578109a339b84b9b459ac6c82bae3a6fd6708557d2785cddd498a097a0"
+  "hash": "832b16a1568e1cfa5ba2534402c2ec78218655ed42ce495b8f92c3ce98249e66"
 }
