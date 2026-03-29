@@ -52,10 +52,5 @@ jobs:
         uses: useblacksmith/build-push-action@v2
         with:
           push: true
-          tags: ghcr.io/dmelo-sh/starfish:latest
+          tags: ghcr.io/makestarfish/starfish:latest
           context: server
-
-          
-
-
-  
