@@ -50,10 +50,10 @@ resource "render_env_group" "starfish" {
 # =============================================================================
 # Service data source
 #
-# We read the current image digest from Render to avoid stale state in 
+# We read the current image digest from Render to avoid stale state in
 # Terraform. The service ID is hardcoded because it comes from an output.
-# 
-# First-time setup: create the service first without the data source — use 
+#
+# First-time setup: create the service first without the data source — use
 # "ghcr.io/makestarfish/starfish" as the image URL — then add the data source
 # with the service ID from `terraform output starfish_service_id`.
 # =============================================================================
