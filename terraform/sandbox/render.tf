@@ -47,6 +47,25 @@ resource "render_env_group" "starfish" {
   }
 }
 
+# =============================================================================
+# Service data source
+#
+# We read the current image digest from Render to avoid stale state in 
+# Terraform. The service ID is hardcoded because it comes from an output.
+# 
+# First-time setup: create the service first without the data source — use 
+# "ghcr.io/makestarfish/starfish" as the image URL — then add the data source
+# with the service ID from `terraform output starfish_service_id`.
+# =============================================================================
+
+locals {
+  starfish_service_id = "srv-d76kc49aae7s73c78q20"
+}
+
+data "render_web_service" "starfish" {
+  id = local.starfish_service_id
+}
+
 resource "render_web_service" "starfish" {
   environment_id = render_project.starfish.environments["Sandbox"].id
   name           = "starfish"
@@ -55,7 +74,8 @@ resource "render_web_service" "starfish" {
 
   runtime_source = {
     image = {
-      image_url              = "ghcr.io/makestarfish/starfish"
+      image_url              = split("@", data.render_web_service.starfish.runtime_source.image.image_url)[0]
+      digest                 = data.render_web_service.starfish.runtime_source.image.digest
       registry_credential_id = render_registry_credential.ghcr.id
     }
   }
