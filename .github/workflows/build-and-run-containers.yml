@@ -69,7 +69,7 @@ jobs:
         
       - name: Run on Render
         run: | 
-          .github/workflows/run-on-render.sh \
+          ./.github/workflows/run-on-render.sh \
           ${{ secrets.RENDER_API_KEY }} \
           ${{ needs.build.outputs.digest }} \
           "srv-d76kc49aae7s73c78q20"
