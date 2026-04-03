@@ -69,7 +69,7 @@ data "render_web_service" "starfish" {
 resource "render_web_service" "starfish" {
   environment_id     = render_project.starfish.environments["Sandbox"].id
   name               = "starfish"
-  plan               = "free"
+  plan               = "starter"
   region             = "ohio"
   pre_deploy_command = "sqlx migrate run"
 
