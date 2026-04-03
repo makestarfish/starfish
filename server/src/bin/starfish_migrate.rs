@@ -1,5 +1,5 @@
 #[tokio::main]
-async fn main() -> Result<(), sqlx::migrate::MigrateError> {
+async fn main() -> Result<(), sqlx::Error> {
   sqlx::migrate!()
     .run(
       &sqlx::postgres::PgPoolOptions::new()
@@ -9,8 +9,8 @@ async fn main() -> Result<(), sqlx::migrate::MigrateError> {
             .expect("DATABASE_URL must be set for migrations")
             .as_str(),
         )
-        .await
-        .unwrap(),
+        .await?,
     )
     .await
+    .map_err(|error| error.into())
 }
