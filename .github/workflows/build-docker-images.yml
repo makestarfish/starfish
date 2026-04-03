@@ -16,9 +16,11 @@ jobs:
     outputs:
       server: ${{ steps.filter.outputs.server }}
     steps:
-      - uses: actions/checkout@v6
+      - name: Checkout
+        uses: actions/checkout@v6
       
-      - uses: dorny/paths-filter@v4
+      - name: Filter Modified Files
+        uses: dorny/paths-filter@v4
         id: filter
         with:
           filters: |

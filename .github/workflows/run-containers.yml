@@ -26,7 +26,7 @@ jobs:
 
       - name: Run on Render
         run: |
-          ./github/workflows/run-on-render.sh \
+          ./.github/workflows/run-on-render.sh \
           "${{ inputs.starfish-render-service-id }}" \
           "${{ inputs.starfish-digest }}"
         env:
