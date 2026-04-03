@@ -1,11 +1,11 @@
-name: Build & Run Containers
+name: Build Docker Images
 
 on:
   push:
     branches: ["main"]
     paths:
       - server/**
-      - .github/workflows/build-and-run-containers.yml
+      - .github/workflows/build-docker-images.yml
 
   workflow_dispatch:
 
@@ -24,7 +24,7 @@ jobs:
           filters: |
             server:
               - 'server/**'
-              - '.github/workflows/build-and-run-containers.yml'
+              - '.github/workflows/build-docker-images.yml'
   
   build:
     name: Build Docker Images
@@ -59,17 +59,12 @@ jobs:
           context: server
           
   run:
-    name: Run Containers
+    name: Call 'Run Containers' Workflow
     needs: [changes, build]
     if: always() && (needs.build.result == 'success' || needs.build.result == 'skipped') && (needs.changes.outputs.server == 'true' || github.event_name == 'workflow_dispatch')
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-        
-      - name: Run on Render
-        run: | 
-          ./.github/workflows/run-on-render.sh \
-          ${{ secrets.RENDER_API_KEY }} \
-          ${{ needs.build.outputs.digest }} \
-          "srv-d76kc49aae7s73c78q20"
+    uses: ./.github/workflows/run-containers.yml
+    with:
+      starfish-digest: ${{ needs.build.outputs.digest }}
+      starfish-render-service-id: "srv-d76kc49aae7s73c78q20"
+    secrets: 
+      RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}

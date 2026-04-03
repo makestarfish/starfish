@@ -1,8 +1,7 @@
 #!/bin/bash
 
-RENDER_API_KEY="${1}"
+SERVICE_ID="${1}"
 IMAGE_URL="ghcr.io/makestarfish/starfish@${2}"
-SERVICE_ID="${3}"
 
 TIMEOUT=300 # 5 minutes
 POOL_INTERVAL=5 # 5 seconds

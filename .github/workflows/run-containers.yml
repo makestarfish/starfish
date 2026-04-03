@@ -1,0 +1,34 @@
+name: Run Containers
+
+on:
+  workflow_call: 
+    inputs:
+      starfish-digest:
+        description: "Starfish image digest"
+        required: true
+        type: string
+      starfish-render-service-id:
+        description: "Starfish service ID on Render"
+        required: true
+        type: string
+    
+    secrets:
+      RENDER_API_KEY:
+        required: true
+
+jobs:
+  run:
+    name: Run Containers
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Run on Render
+        run: |
+          ./github/workflows/run-on-render.sh \
+          "${{ inputs.starfish-render-service-id }}" \
+          "${{ inputs.starfish-digest }}"
+        env:
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+        
