@@ -71,7 +71,7 @@ resource "render_web_service" "starfish" {
   name               = "starfish"
   plan               = "starter"
   region             = "ohio"
-  pre_deploy_command = "sqlx migrate run"
+  pre_deploy_command = "starfish_migrate"
 
   runtime_source = {
     image = {
