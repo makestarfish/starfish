@@ -31,7 +31,7 @@ pub async fn resolve(
   .map_err(|_| failure!())?;
 
   let create_email_options = CreateEmailBaseOptions::new(
-    "Starfish <onboarding@resend.dev>",
+    "Starfish <starfish@dmelo.sh>",
     [&email],
     "Login to Starfish",
   )
