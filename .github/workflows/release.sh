@@ -21,7 +21,7 @@ check_deploy_status() {
   echo "$response"
 }
 
-echo "🚀 STARTING DEPLOYMENT FOR ${SERVICE_ID}"
+echo "🚀 STARTING DEPLOYMENT"
 
 response=$(curl -s -X POST \
   --header "accept: application/json" \
@@ -33,16 +33,14 @@ response=$(curl -s -X POST \
 
 deploy_id=$(echo "$response" | jq -r '.id' 2>/dev/null)
 
-if [[ -n "$deploy_id" && "$deploy_id" != "null" ]]
+if [[ -z "$deploy_id" || "$deploy_id" == "null" ]]
 then
-  echo "Deploy ID: ${deploy_id}"
-else
-  echo "❌ Failed to trigger deployment for ${SERVICE_ID}"
+  echo "❌ Got error response from Render"
   echo "Response: ${response}"
   exit 1
 fi
 
-echo "⏳ Waiting for deployment to complete..."
+echo "⏳ Waiting for service update..."
 
 start_time=$(date +%s)
 complete=false
@@ -54,22 +52,22 @@ do
 
   case "$status" in
     "live")
-      echo "✅ ${SERVICE_ID}: deployed successfully"
+      echo "✅ service is live!"
       ;;
     "build_failed"|"update_failed"|"pre_deploy_failed"|"canceled")
-      echo "❌ ${SERVICE_ID}: deployment failed with status ${status}"
+      echo "❌ failed with status ${status}"
       exit 1
       ;;
     "created"|"queued"|"build_in_progress"|"update_in_progress"|"pre_deploy_in_progress")
-      echo "🔄 ${SERVICE_ID}: deployment in progress (${status})"
+      echo "🔄 in progress (status is '${status}')"
       complete=false
       ;;
     "deactivated")
-      echo "⚠️  ${SERVICE_ID}: service is deactivated"
+      echo "⚠️ service is deactivated"
       complete=false
       ;;
     *)
-      echo "⚠️  ${SERVICE_ID}: unknown status ${status}"
+      echo "⚠️ unknown status ${status}"
       complete=false
       ;;
   esac
@@ -90,4 +88,4 @@ do
   fi
 done
 
-echo "✅ DEPLOYMENT COMPLETED SUCCESSFULLY!"
+echo "🎉 DEPLOYMENT COMPLETED SUCCESSFULLY!"
