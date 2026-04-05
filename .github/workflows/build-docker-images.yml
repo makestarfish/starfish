@@ -18,7 +18,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
-      
+
       - name: Filter Modified Files
         uses: dorny/paths-filter@v4
         id: filter
@@ -27,7 +27,7 @@ jobs:
             server:
               - 'server/**'
               - '.github/workflows/build-docker-images.yml'
-  
+
   build:
     name: Build Docker Images
     needs: changes
@@ -39,7 +39,7 @@ jobs:
     outputs:
       digest: ${{ steps.push.outputs.digest }}
     steps:
-      - name: Checkout 
+      - name: Checkout
         uses: actions/checkout@v6
 
       - name: Setup Docker Builder
@@ -59,14 +59,14 @@ jobs:
           push: true
           tags: ghcr.io/makestarfish/starfish:latest
           context: server
-          
-  run:
-    name: Call 'Run Containers' Workflow
+
+  release:
+    name: Release
     needs: [changes, build]
     if: always() && (needs.build.result == 'success' || needs.build.result == 'skipped') && (needs.changes.outputs.server == 'true' || github.event_name == 'workflow_dispatch')
-    uses: ./.github/workflows/run-containers.yml
+    uses: ./.github/workflows/release.yml
     with:
       starfish-digest: ${{ needs.build.outputs.digest }}
       starfish-render-service-id: "srv-d76kc49aae7s73c78q20"
-    secrets: 
+    secrets:
       RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}

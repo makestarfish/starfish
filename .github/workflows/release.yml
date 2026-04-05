@@ -1,4 +1,4 @@
-name: Run Containers
+name: Release
 
 on:
   workflow_call: 
@@ -17,16 +17,16 @@ on:
         required: true
 
 jobs:
-  run:
-    name: Run Containers
+  release:
+    name: Release
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v6
 
-      - name: Run on Render
+      - name: Release (Render)
         run: |
-          ./.github/workflows/run-on-render.sh \
+          ./.github/workflows/release.sh \
           "${{ inputs.starfish-render-service-id }}" \
           "${{ inputs.starfish-digest }}"
         env:
